@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 // Para DECLSPEC en SDL_loadso.h
-#include "SDL.h"
+#include <SDL2/SDL.h>
 
 #include "SDLInputKeyboardPlugin.h"
 

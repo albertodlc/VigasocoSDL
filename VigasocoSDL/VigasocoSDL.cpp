@@ -21,7 +21,7 @@
 #include "SDLThread.h"
 
 // para los eventos y para poner el titulo de la ventana
-#include "SDL.h"
+#include <SDL2/SDL.h>
 
 #ifdef _EE
 bool PS2SpecificInit(void);
@@ -207,9 +207,14 @@ void VigasocoSDL::createAsyncThread()
 
 void VigasocoSDL::initCompleted()
 {
-	std::string titulo_ventana = "VigasocoSDL v0.096: " + _driver->getFullName();
-	SDL_WM_SetCaption(titulo_ventana.c_str(),titulo_ventana.c_str());
-	SDL_ShowCursor(SDL_DISABLE);
+    std::string titulo_ventana = "VigasocoSDL v0.096: " + _driver->getFullName();
+
+    // TODO: SDL_WM_SetCaption removed in SDL2.
+    // SDL_SetWindowTitle(window, titulo_ventana.c_str()) needs a window handle.
+    // The window is owned by the draw plugin — wire it through when refactoring plugins.
+    // SDL_WM_SetCaption(titulo_ventana.c_str(), titulo_ventana.c_str());
+
+    SDL_ShowCursor(SDL_DISABLE);
 }
 
 /////////////////////////////////////////////////////////////////////////////

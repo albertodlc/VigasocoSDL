@@ -18,7 +18,7 @@
 #include "nacl_io/nacl_io.h"
 
 #include <SDL/SDL_nacl.h>
-#include "SDL.h"
+#include <SDL2/SDL.h>
 
 
 //extern "C" int game_main(void *ptr);

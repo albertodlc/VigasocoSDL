@@ -8,7 +8,7 @@
 #define _DIRECT_INPUT_KEYBOARD_PLUGIN_H_
 
 #include "IInputPlugin.h"
-#include "SDL.h"
+#include <SDL2/SDL.h>
 
 class SDLInputKeyboardPlugin: public IInputPlugin
 {
@@ -19,7 +19,8 @@ protected:
 
 	UINT8 _keys[256];							// keys state
 
-	static SDL_Scancode g_keyMapping[END_OF_INPUTS];	// VIGASOCO input to DirectInput mapping
+	static SDL_Scancode g_keyMapping[END_OF_INPUTS];
+
 #if defined _EE || defined _PS3
 	SDL_Joystick *joy;
 #endif

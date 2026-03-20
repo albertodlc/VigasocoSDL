@@ -8,7 +8,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "VigasocoSDL.h"
-#include "SDL.h"
+#include <SDL2/SDL.h>
 #include "iostream"
 
 #ifdef __native_client__

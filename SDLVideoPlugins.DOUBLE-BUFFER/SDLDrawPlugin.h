@@ -8,7 +8,7 @@
 #define _SDL_DRAW_PLUGIN_H_
 
 #include "IDrawPlugin.h"
-#include "SDL.h"
+#include <SDL2/SDL.h>
 #include "util/INotificationSuscriber.h"
 
 class SDLDrawPlugin: public IDrawPlugin,public INotificationSuscriber<IPalette>

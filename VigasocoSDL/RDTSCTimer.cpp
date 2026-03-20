@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "RDTSCTimer.h"
-#include "SDL.h"
+#include <SDL2/SDL.h>
 
 // Para SDL_HasRDTSC()
 #include "SDL_cpuinfo.h"

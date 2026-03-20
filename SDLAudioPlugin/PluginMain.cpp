@@ -5,7 +5,7 @@
 #include "SDLAudioPlugin.h"
 #include "NULLAudioPlugin.h"
 
-#include "SDL.h"
+#include <SDL2/SDL.h>
 
 static const char * const description = "VIGASOCO SDL Audio Plugin v1.2";
 

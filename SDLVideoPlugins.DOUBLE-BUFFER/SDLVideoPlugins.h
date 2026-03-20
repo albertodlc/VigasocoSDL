@@ -5,7 +5,7 @@
 #define _SDL_VIDEO_PLUGINS_H_
 
 #include "SDLBasicDrawPlugin.h"
-#include "SDL.h"
+#include <SDL2/SDL.h>
 
 class SDLDrawPlugin8bpp : public SDLBasicDrawPlugin<UINT8>
 {

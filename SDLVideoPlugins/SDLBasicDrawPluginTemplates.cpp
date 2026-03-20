@@ -35,40 +35,24 @@ bool SDLBasicDrawPlugin<T>::init(const VideoInfo *vi, IPalette *pal)
 				vi->width,vi->height,_bpp,SDL_GetError());
 		return false;
 	}
-//	printf("set %dx%dx%d video mode(%s): %s\n",
-//				vi->width,vi->height,_bpp,screen->flags & SDL_DOUBLEBUF?"DOUBLEBUFF":"No double buffer",SDL_GetError());
+	
+	//	printf("set %dx%dx%d video mode(%s): %s\n",
+	//				vi->width,vi->height,_bpp,screen->flags & SDL_DOUBLEBUF?"DOUBLEBUFF":"No double buffer",SDL_GetError());
 
-	Uint32 format;
-	switch(_bpp) 
-	{
-		case 8: 
-			format=SDL_PIXELFORMAT_INDEX8; 
-			_pitch=vi->width*sizeof(Uint8); break;
-			break;
-		case 16: 
-			format=SDL_PIXELFORMAT_ARGB4444; 
-			_pitch=vi->width*sizeof(Uint16); break;
-		case 24: 
-			format=SDL_PIXELFORMAT_RGB24;
-			_pitch=vi->width*(sizeof(Uint32)-sizeof(Uint8)); break;
-			break;
-		case 32: 
-			format=SDL_PIXELFORMAT_ARGB8888;
-			_pitch=vi->width*sizeof(Uint32); break;
-			break;
-		default: SDL_ShowSimpleMessageBox(
-				SDL_MESSAGEBOX_ERROR,
-				"BitsPerPixel VigasocoSDLDrawPlugin ERROR",
-				"Numero de bits por pixel no soportados",
-				NULL);
-			return false;
-	}
+	Uint32 format = SDL_PIXELFORMAT_ARGB8888;
+	// SDL2 does not support palettized textures.
+	// Always use ARGB8888 — palette colors are pre-mapped to 32bpp in _palette.
+	_pitch = vi->width * sizeof(Uint32);
+	
+	// TEMP DEBUG — remove after confirming
+	fprintf(stderr, "init: width=%d height=%d pitch=%d\n", vi->width, vi->height, _pitch);
 
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
 	texture=SDL_CreateTexture(renderer,
 		format, 
 		SDL_TEXTUREACCESS_STREAMING,
 		vi->width, vi->height);
+
 	if (texture==NULL) {
 		SDL_ShowSimpleMessageBox(
 			SDL_MESSAGEBOX_ERROR,
@@ -77,6 +61,7 @@ bool SDLBasicDrawPlugin<T>::init(const VideoInfo *vi, IPalette *pal)
 			NULL);
 		return false;
 	}
+
 	if (SDL_RenderSetLogicalSize(renderer, vi->width, vi->height)<0) {
 		SDL_ShowSimpleMessageBox(
 			SDL_MESSAGEBOX_ERROR,
@@ -147,34 +132,19 @@ bool SDLBasicDrawPlugin<T>::init(const VideoInfo *vi, IPalette *pal)
 
 
 template<typename T>
-void SDLBasicDrawPlugin<T>::end()  {
-//SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "aa", "aa", NULL);
-	if ( _originalPalette )
-		_originalPalette->detach(this);
-//TODO SDL2
-fprintf(stderr,"11a\n");
-fflush(stderr);
-	SDL_DestroyTexture(texture);
-fprintf(stderr,"2a\n");
-fflush(stderr);
-	SDL_DestroyRenderer(renderer);
-fprintf(stderr,"3a\n");
-fflush(stderr);
-	SDL_DestroyWindow(window);
-fprintf(stderr,"aa\n");
-fflush(stderr);
-fprintf(stderr,"aa\n");		
-fflush(stderr);
-;
-fprintf(stderr,"aa\n");
-fprintf(stderr,"aa\n");
-fprintf(stderr,"aa\n");
-fprintf(stderr,"aa\n");
-	if (myPixels!=NULL) delete[] myPixels;
-fprintf(stderr,"bb\n");
-fflush(stderr);
-	_isInitialized = false;
-};
+void SDLBasicDrawPlugin<T>::end()
+{
+    if (_originalPalette)
+        _originalPalette->detach(this);
+
+    SDL_DestroyTexture(texture);
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+
+    if (myPixels != NULL) delete[] myPixels;
+
+    _isInitialized = false;
+}
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -265,33 +235,12 @@ void SDLBasicDrawPlugin<T>::render(bool throttle)
 template<typename T>
 void SDLBasicDrawPlugin<T>::setPixel(int x, int y, int color)
 {
+    // TEMP DEBUG
+    static int maxY = 0;
+    static int maxX = 0;
+    if (y > maxY) { maxY = y; fprintf(stderr, "maxY=%d\n", maxY); }
+    if (x > maxX) { maxX = x; fprintf(stderr, "maxX=%d\n", maxX); }
 
-	Uint8 *p = (Uint8 *)myPixels + y * _pitch + x * pixelFormat->BytesPerPixel;
-	*(T *)p = _palette[color]; // Vale para todos los bpp, excepto 24bpp
-
-/*
-//TODO SDL2
-// Limpiar
-	// Lock the screen for direct access to the pixels 
-	if ( SDL_MUSTLOCK(screen) ) {
-		if ( SDL_LockSurface(screen) < 0 ) {
-			fprintf(stderr, "Can't lock screen: %s\n", SDL_GetError());
-			return;
-		}
-	}
-
-	updateRect(x,y);
-
-	int __bpp = screen->format->BytesPerPixel;
-	// Here p is the address to the pixel we want to set 
-	Uint8 *p = (Uint8 *)screen->pixels + y * screen->pitch + x * __bpp;
-
-	*(T *)p = _palette[color]; // Vale para todos los bpp, excepto 24bpp
-
-	if ( SDL_MUSTLOCK(screen) ) {
-		SDL_UnlockSurface(screen);
-	}
-*/
-};
-//TODO SDL2
-// Limpiar
+    Uint32 *p = (Uint32 *)((Uint8 *)myPixels + y * _pitch + x * sizeof(Uint32));
+    *p = _palette[color];
+}

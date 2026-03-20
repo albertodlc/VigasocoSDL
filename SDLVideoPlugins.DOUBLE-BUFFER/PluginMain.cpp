@@ -4,7 +4,7 @@
 
 #include "SDLVideoPlugins.h"
 
-#include "SDL.h"
+#include <SDL2/SDL.h>
 
 static const char * const description = "VIGASOCO SDL Video Plugins v1.1";
 

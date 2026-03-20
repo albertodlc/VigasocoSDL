@@ -5,9 +5,10 @@
 #define _SDL_VIDEO_PLUGINS_H_
 
 #include "SDLBasicDrawPlugin.h"
-#include "SDL.h"
+#include <SDL2/SDL.h>
 
-class SDLDrawPlugin8bpp : public SDLBasicDrawPlugin<UINT8>
+// NEW — palette entries must hold full 32bpp values
+class SDLDrawPlugin8bpp : public SDLBasicDrawPlugin<UINT32>
 {
 	private:
 		SDL_mutex *cs; // No se puede actualizar la paleta y el render a la vez

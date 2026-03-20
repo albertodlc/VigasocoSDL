@@ -10,12 +10,12 @@
 
 SDLThread::SDLThread()
 {
-	_handle = NULL;
+    _handle = NULL;
 }
 
 SDLThread::~SDLThread()
 {
-	end();
+    end();
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -24,7 +24,7 @@ SDLThread::~SDLThread()
 
 int SDLThread::ThreadProc(SDLThread *thread)
 {
-	return thread->run();
+    return thread->run();
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -33,55 +33,47 @@ int SDLThread::ThreadProc(SDLThread *thread)
 
 bool SDLThread::start()
 {
-	if (_isRunning){
-		return false;
-	}
+    if (_isRunning){
+        return false;
+    }
 
-	// creates the thread
-#ifndef __EMSCRIPTEN_PTHREADS__ 
-	_handle = SDL_CreateThread((int (*)(void*))ThreadProc, this);
+#ifndef __EMSCRIPTEN_PTHREADS__
+    // SDL2: requires a thread name as second argument
+    _handle = SDL_CreateThread((SDL_ThreadFunction)ThreadProc, "VigasocoThread", this);
 #else
-	// SDL 1.2 en emscripten aún no hace uso de pthreads
-	// aunque emscripten ya tiene soporte pthreads
-	// cambiar si migramos a SDL2 o actulizan el 1.2 en emscripten
-	// Valorar si tener una clas POSIX_THREAD que implemente iThread
-	pthread_create(&_handle,NULL,(void *(*)(void *))ThreadProc,this);
+    pthread_create(&_handle, NULL, (void *(*)(void *))ThreadProc, this);
 #endif
 
-	if (_handle == NULL){
-		// error creating the thread
-		return false;
-	}
+    if (_handle == NULL){
+        return false;
+    }
 
-	_isRunning = true;
-
-	return true;
+    _isRunning = true;
+    return true;
 }
 
 void SDLThread::end()
 {
-	if (_handle != NULL){
-		_isRunning = false;
+    if (_handle != NULL){
+        _isRunning = false;
 
-		// kill the thread
-#ifndef __EMSCRIPTEN_PTHREADS__ 
-		SDL_KillThread(_handle);
+#ifndef __EMSCRIPTEN_PTHREADS__
+        // SDL_KillThread removed in SDL2 — wait for thread to finish naturally
+        // _isRunning = false signals the thread loop to exit
+        SDL_WaitThread(_handle, NULL);
 #else
-		pthread_cancel(_handle);
+        pthread_cancel(_handle);
 #endif
-
-		_handle = NULL;
-	}
+        _handle = NULL;
+    }
 }
 
 void SDLThread::pause()
 {
-//SuspendThread(_handle);
-// TODO:  ¡¡¡ FALTA POR IMPLEMENTAR !!!
+    // TODO: not implemented
 }
 
 void SDLThread::resume()
 {
-//ResumeThread(_handle);
-// TODO: ¡¡¡ FALTA POR IMPLEMENTAR !!!
+    // TODO: not implemented
 }

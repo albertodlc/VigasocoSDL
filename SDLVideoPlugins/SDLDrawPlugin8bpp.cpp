@@ -5,87 +5,41 @@
 #include "SDLVideoPlugins.h"
 #include "IPalette.h"
 
-/////////////////////////////////////////////////////////////////////////////
-//// Palette changes
-///////////////////////////////////////////////////////////////////////////////
-
 void SDLDrawPlugin8bpp::updateFullPalette(IPalette *palette)
-{ 
-	SDL_Color colors[256];
-
-	for (int i = 0; i < palette->getTotalColors(); i++){
-		UINT8 r, g, b;
-
-		palette->getColor(i, r, g, b);
-		colors[i].r=r;
-		colors[i].g=g;
-		colors[i].b=b;
-Uint32 format;
-SDL_QueryTexture(texture,&format,NULL,NULL,NULL); //666 TODO falta comprobar error
-//fprintf(stderr,"format %s ",SDL_GetPixelFormatName(format));
-_palette[i] = SDL_MapRGB(SDL_AllocFormat(format),r,g,b);
-	}
-	SDL_mutexP(cs);
-//666 SDL2 TODO cambiar esto a setpalette
-//	SDL_SetColors(screen, colors, 0, 256); 
-	SDL_mutexV(cs);
+{
+    for (int i = 0; i < palette->getTotalColors(); i++){
+        UINT8 r, g, b;
+        palette->getColor(i, r, g, b);
+        _palette[i] = SDL_MapRGB(pixelFormat, r, g, b);
+        // TEMP DEBUG — print first 8 colors
+        if (i < 8) fprintf(stderr, "color[%d] r=%d g=%d b=%d mapped=0x%08x\n", i, r, g, b, _palette[i]);
+    }
 }
 
 void SDLDrawPlugin8bpp::update(IPalette *palette, int data)
-{ 
-	if (data != -1){
-		// single color update
-		UINT8 r, g, b;
-		SDL_Color color;
-
-		palette->getColor(data, r, g, b);
-		color.r=r;
-		color.g=g;
-		color.b=b;
-
-		SDL_mutexP(cs);
-//666 SDL2 TODO cambiar esto a setpalette
-//		SDL_SetColors(screen, &color, data, 1);
-Uint32 format;
-SDL_QueryTexture(texture,&format,NULL,NULL,NULL); //666 TODO falta comprobar error
-//fprintf(stderr,"format %s ",SDL_GetPixelFormatName(format));
-_palette[data] = SDL_MapRGB(SDL_AllocFormat(format),r,g,b);
-		SDL_mutexV(cs);
-	} else {
-		// full palette update
-		updateFullPalette(palette);
-	} 
+{
+    if (data != -1){
+        UINT8 r, g, b;
+        palette->getColor(data, r, g, b);
+        // TEMP DEBUG
+        fprintf(stderr, "update color[%d] r=%d g=%d b=%d\n", data, r, g, b);
+        SDL_LockMutex(cs);
+        _palette[data] = SDL_MapRGB(pixelFormat, r, g, b);
+        SDL_UnlockMutex(cs);
+    } else {
+        updateFullPalette(palette);
+    }
 }
+
 void SDLDrawPlugin8bpp::render(bool throttle)
 {
-	SDL_mutexP(cs);
-	SDLBasicDrawPlugin<UINT8>::render(throttle);
-	SDL_mutexV(cs);
+    SDL_LockMutex(cs);
+    SDLBasicDrawPlugin<UINT32>::render(throttle);  // ← UINT8 → UINT32
+    SDL_UnlockMutex(cs);
 }
-
 
 void SDLDrawPlugin8bpp::setPixel(int x, int y, int color)
 {
-//TODO SDL2
-Uint8 *p = (Uint8 *)myPixels + y * _pitch + x ;
-*p = color; // Vale para todos los bpp, excepto 24bpp
-/*
-	// Lock the screen for direct access to the pixels 
-	if ( SDL_MUSTLOCK(screen) ) {
-		if ( SDL_LockSurface(screen) < 0 ) {
-			fprintf(stderr, "Can't lock screen: %s\n", SDL_GetError());
-			return;
-		}
-	}
-	updateRect(x,y);
-
-	int bpp = screen->format->BytesPerPixel;
-	// Here p is the address to the pixel we want to set 
-	Uint8 *p = (Uint8 *)screen->pixels + y * screen->pitch + x * bpp;
-	*p=color;
-
-	if ( SDL_MUSTLOCK(screen) ) {
-		SDL_UnlockSurface(screen);
-	}
-*/
-};
+    Uint32 *p = (Uint32 *)((Uint8 *)myPixels + y * _pitch + x * sizeof(Uint32));
+    *p = _palette[color];
+}

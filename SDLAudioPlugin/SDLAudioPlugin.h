@@ -8,7 +8,7 @@
 #define _SDL_AUDIO_PLUGIN_H_
 
 #include "IAudioPlugin.h"
-#include "SDL.h"
+#include <SDL2/SDL.h>
 
 #include <vector>
 
