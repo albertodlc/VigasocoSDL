@@ -4,17 +4,76 @@ This is a **full reverse-engineered port** of La Abadía del Crimen, already don
 
 ---
 
-## Compilation
-Install this dependencies
+## Compilation 
+This project is a "multi-platform" codebase. Each `Makefile.[platform]` is a specialized instruction set for different hardware or environments.
+
+| File | Target Platform | Environment |
+| :--- | :--- | :--- |
+| `Makefile` | **Linux PC** | Native Desktop |
+| `Makefile.MinGW` | **Windows** | MinGW / GCC |
+| `Makefile.PS3` | **PS3** | Native App |
+| `Makefile.KBOOT_PS3`| **PS3** | Linux / OtherOS |
+| `Makefile.PS2` | **PS2** | Native App |
+| `Makefile.static.emscripten`| **Web Browser** | HTML5 / WASM |
+
+---
+
+### Linux (Standard PC)
+For modern Linux distributions (Ubuntu, Debian, Fedora, etc.).
+* **Requirements:** `g++`, `make`, and `libsdl1.2-dev`.
 ```bash
 sudo apt install libsdl2-dev libsdl1.2-dev g++ make
 ```
 
-Execute fdrom the root
+* **Execution:**
 ```bash
 make clean
 make
 ```
+
+### PS3 Linux (OtherOS / KBOOT)
+For the PlayStation 3 specifically running a Linux distro (like Yellow Dog Linux). This uses the PS3's internal hardware through the KBOOT loader.
+* **Execution:**
+```bash
+make -f Makefile.KBOOT_PS3 clean
+make -f Makefile.KBOOT_PS3
+```
+
+### PlayStation 3 (Native Game Mode)
+These are for building a native PS3 application (`.pkg` or `.self`) rather than a Linux app. `Makefile.static.PS3` likely bundles everything into one single file.
+* **Requirements:** Cell SDK or PSL1GHT (Open Source SDK).
+* **Execution:**
+```bash
+make -f Makefile.PS3
+# OR for a standalone version:
+make -f Makefile.static.PS3
+```
+
+### PlayStation 2
+For the legacy PS2 hardware. This requires a MIPS cross-compiler.
+* **Requirements:** PS2SDK installed on your system.
+* **Execution:**
+```bash
+make -f Makefile.PS2
+```
+
+### Windows (MinGW)
+For compiling on Windows using the Minimalist GNU for Windows (MinGW) toolchain.
+* **Requirements:** MinGW-w64 and Windows versions of SDL.
+* **Execution:**
+```bash
+make -f Makefile.MinGW
+```
+
+### Web Browser (Emscripten / PNACL)
+These allow the game to run in a web browser. `emscripten` converts the code to WebAssembly/JS, while `PNACL` was a Google Chrome-specific format (now mostly deprecated).
+* **Requirements:** Emscripten SDK (`emsdk`).
+* **Execution:**
+```bash
+make -f Makefile.static.emscripten
+```
+
+---
 
 ## Key discoveries
 **1. The game reads from a `.DSK` file** — not loose files like `abadia1.ovl`. The `DskReader.cpp` reads Amstrad CPC disk images. Your game files are the PC version — you'll need to check compatibility.

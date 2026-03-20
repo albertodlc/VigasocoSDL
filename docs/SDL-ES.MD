@@ -5,8 +5,7 @@ Acerca de:
 
 VIGASOCOSDL es la versión para SDL del proyecto VIGASOCO.
 Se ha probado en i386 GNU-Linux, PS3-PPC GNU-Linux , PlayStation2 en modo nativo(con restricciones), 
-Mac OSX y Sega Dreamcast, 
-aunque no debe ser dificil adaptarlo a cualquier otra plataforma con SDL y un compilador moderno de C++.
+Mac OSX y Sega Dreamcast, aunque no debe ser dificil adaptarlo a cualquier otra plataforma con SDL y un compilador moderno de C++.
 
 
 Licencia y distribución:

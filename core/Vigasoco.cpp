@@ -10,7 +10,6 @@
 #include "InputHandler.h"
 #include "IPalette.h"
 #include "IThread.h"
-#include "ITimer.h"
 #include "TimingHandler.h"
 #include "Vigasoco.h"
 #include "AbadiaDriver.h"
@@ -220,12 +219,11 @@ void Vigasoco::end()
 	// stops and deallocates the timing handler
 	if (_timingHandler){
 		_timingHandler->end();
-//FIXME TODO SDL2
-// da core dump al salir 
-//aunque no es seguro que sea por esto
-fprintf(stderr,"antes delete\n"); fflush(stderr);
+		//FIXME TODO SDL2
+		// da core dump al salir aunque no es seguro que sea por esto
+		fprintf(stderr,"antes delete\n"); fflush(stderr);
 		delete _timingHandler;
-fprintf(stderr,"despues delete\n"); fflush(stderr);
+		fprintf(stderr,"despues delete\n"); fflush(stderr);
 		_timingHandler = 0;
 	}
 
@@ -280,10 +278,12 @@ fprintf(stderr,"despues delete\n"); fflush(stderr);
 	delete _fontManager;
 }
 
-/////////////////////////////////////////////////////////////////////////////
-// main loop
-/////////////////////////////////////////////////////////////////////////////
+// ! MAIN LOOP
 
+/**
+ * @brief 
+ * 
+ */
 void Vigasoco::initFrame()
 {
 	_numFrames++;
@@ -349,6 +349,7 @@ void Vigasoco::mainLoop()
 		_timingHandler->endThisInterrupt();
 	}
 }
+
 
 /////////////////////////////////////////////////////////////////////////////
 // helper methods
