@@ -69,7 +69,6 @@ void SDLAudioPlugin::end()
 	{
 		free(it->data);
 	}
-SDL_QuitSubSystem(SDL_INIT_AUDIO);
 
 	_isInitialized = false;
 }
@@ -162,9 +161,9 @@ bool SDLAudioPlugin::LoadWAV_internal(const SDL_AudioSpec &wave,Uint8 *audio_buf
 		return false;
 	}
 			
-	// TODO: esto de AUDIO_S8,1,22050 deber?an ser diferente seg?n el tipo
+	// TODO: esto de AUDIO_S8,1,22050 deberían ser diferente según el tipo
 	// de plugin ...
-	// asi se podr?an tener distintos plugins para distintos hardwares...
+	// asi se podrían tener distintos plugins para distintos hardwares...
 	
 	cvt.buf = NULL;
 	cvt.buf=(Uint8*) malloc(dlen*cvt.len_mult);

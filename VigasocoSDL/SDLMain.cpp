@@ -16,6 +16,11 @@
 #include <errno.h>
 #endif
 
+#if defined(__native_client__) || defined(__EMSCRIPTEN_PTHREADS__)
+#include <stdio.h>
+#include <pthread.h>
+#endif
+
 //666 777 TODO
 //#include <SDL_main.h>
 //666 777 ¿es necesario? ¿no lo incluye ya SDL.h?
@@ -25,9 +30,8 @@ typedef std::vector<std::string> Strings;
 // default options
 std::string g_game("abadia");
 std::string g_drawPluginsDLL("libVigasocoSDLDrawPlugin.so");
-// 666 TODO SDL2
-//std::string g_drawPlugin("win8");
-std::string g_drawPlugin("win32");
+std::string g_drawPlugin("win8");
+//std::string g_drawPlugin("win32");
 
 // Se añade plugin NULLAudio sin salida de sonido
 // para poder compilar en Windows Services for Linux que no tiene soporte ALSA
@@ -39,10 +43,13 @@ std::string g_drawPlugin("win32");
 // ./VigasocoSDL abadia -video:libVigasocoSDLDrawPlugin.so,win8 -audio:libVigasocoSDLAudioPlugin.so,NULLAudioPlugin
 // ./VigasocoSDL abadia -video:libVigasocoSDLDrawPlugin.so,wingris8 -audio:libVigasocoSDLAudioPlugin.so,SDLAudioPlugin
 // ./VigasocoSDL abadia -video:libVigasocoSDLDrawPlugin.so,win8 -audio:libVigasocoNULLAudioPlugin.so,NULLAudioPlugin
+#ifndef __EMSCRIPTEN__
 std::string g_audioPluginsDLL("libVigasocoSDLAudioPlugin.so");
-//std::string g_audioPlugin("SDLAudioPlugin");
-//std::string g_audioPluginsDLL("libVigasocoNULLAudioPlugin.so");
+std::string g_audioPlugin("SDLAudioPlugin");
+#else
+std::string g_audioPluginsDLL("libVigasocoNULLAudioPlugin.so");
 std::string g_audioPlugin("NULLAudioPlugin");
+#endif
 
 Strings g_inputPluginsDLLs;
 Strings g_inputPlugins;
@@ -58,14 +65,20 @@ void showUsage(std::string error);
 //	SDL application entry point
 /////////////////////////////////////////////////////////////////////////////
 
-#ifdef __native_client__
+#if defined(__native_client__) || defined(__EMSCRIPTEN_PTHREADS__)
 int internal_game_main(void *ptr);
 
 //666 777 TODO pruebas nuevo SDLMain en pepper_35 
 // int game_main(void *ptr)
 int main(int argc,char **argv)
 {
-	SDL_Thread *thread=NULL;
+	//SDL_Thread *thread=NULL;
+	//TODO: usar IThread para usar la implementación de Thread que se use
+	// en la plataforma, pero falta tener algo equivalente a pthread_join
+	// o SDL_WaitThread
+	// Como en emscripten SDL1.2 no usa todavía el soporte pthread
+	// uso directamente pthread
+	pthread_t thread;
         int threadReturnValue;
 
 			// la rom, archivos de sonido, graficos VGA,etc.
@@ -88,7 +101,7 @@ int result=666;
 	// ver si see puede recibir como parametro desde la web para evitar que si lo cambian otra vez no funcione
 //666 777 comentado mientras pruebo en local
 	//int result = mount("https://d7a3675a31436e0742da09235a5ca70b3ec1902d.googledrive.com/host/0B2D2jhRcf6o-Z2VwcUp0TDBIa0k/", "/roms", "httpfs", 0, "");
-	printf("result mount httpfs =%d %s\n",result,strerror(errno));
+//	printf("result mount httpfs =%d %s\n",result,strerror(errno));
 
 	//almacenado en google drive la version para 99redpotions
 	//int result = mount("https://googledrive.com/host/0B2D2jhRcf6o-Z2VwcUp0TDBIa0k/abadia99rp/", "/roms", "httpfs", 0, "");
@@ -104,17 +117,23 @@ int result=666;
 			// filesystem:http://ubuntu/persistent/
 			// cambiando ubuntu por el hosting correspondiente
 	//result = mount("UNUSED", "/save", "html5fs", 0, "type=PERSISTENT,expected_size=1024*20");
+#ifdef __native_client__
 	result = mount("", "/save", "html5fs", 0, "type=PERSISTENT,expected_size=20480");
 	printf("result mount html5fs =%d %d %s\n",result,errno,strerror(errno));
+#endif
+	//thread=SDL_CreateThread(internal_game_main,(void *)NULL);
+	if (pthread_create(&thread,NULL,(void *(*)(void *))internal_game_main,NULL)) {
+		perror("Thread create failed");
+	}
 
-	thread=SDL_CreateThread(internal_game_main,(void *)NULL);
 	if(NULL==thread)
         {
                 //printf("ERR createthread\n");
         }
         else
         {
-                SDL_WaitThread( thread, &threadReturnValue);
+                //SDL_WaitThread( thread, &threadReturnValue);
+		pthread_join(thread,NULL);
                 //printf("despues de waitthread\n");
         }
 	return 0;
@@ -160,10 +179,8 @@ int main(int argc,char **argv)
 
 	// cleanup
 	VIGASOCO.end();
-fprintf(stderr,"1sdlmain\n");
-fflush(stderr);
+
 	SDL_Quit();
-fprintf(stderr,"2sdlmain\n");
 
 	return 0;
 }
