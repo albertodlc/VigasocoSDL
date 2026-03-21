@@ -10,6 +10,7 @@
 
 #include <string>
 #include "../util/Singleton.h"
+#include "../Types.h"
 
 class CPC6128;					// definido en CPC6128.h
 

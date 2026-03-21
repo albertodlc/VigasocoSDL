@@ -569,170 +569,116 @@ void Pergamino::muestraTexto(const unsigned char *texto)
 	dibujaTexto(texto); 
 }
 
-//void Pergamino::dibujaTexto(const char *texto)
-void Pergamino::dibujaTexto(const unsigned char *texto)
+// Decodes a single UTF-8 code point from `src`, advancing the pointer past it.
+// Returns 0xFFFD (replacement character) on invalid input.
+static UINT32 decodeUtf8(const unsigned char*& src)
 {
-	// obtiene acceso al temporizador y a las entradas
-	TimingHandler *timer = elJuego->timer;
+    const unsigned char first = *src;
 
-	// posición inicial del texto en el pergamino
-	int posX = 76;
-	int posY = 16;
+    auto advance = [&](int n, UINT32 initial) -> UINT32 {
+        UINT32 cp = initial;
+        for (int i = 1; i < n; ++i) {
+            const unsigned char cont = *(src + i);
+            if ((cont & 0xC0) != 0x80) return 0xFFFD; // invalid continuation
+            cp = (cp << 6) | (cont & 0x3F);
+        }
+        src += n;
+        return cp;
+    };
 
-	// puntero a la tabla de punteros a los gráficos de los caracteres
-	UINT16* charTable = (UINT16*) &roms[0x680c];
+    if (!(first & 0x80)) { ++src; return first; }           // 1-byte (ASCII)
+    if ((first & 0xE0) == 0xC0) return advance(2, first & 0x1F); // 2-byte
+    if ((first & 0xF0) == 0xE0) return advance(3, first & 0x0F); // 3-byte
+    if ((first & 0xF8) == 0xF0) return advance(4, first & 0x07); // 4-byte
 
-	// repite hasta que se pulse el botón 1
-	while (true){
-		losControles->actualizaEstado();
+    ++src;
+    return 0xFFFD; // invalid lead byte
+}
 
-		// si se pulsó el botón 1 o espacio, termina
-		if (losControles->estaSiendoPulsado(P1_BUTTON1) || losControles->estaSiendoPulsado(KEYBOARD_SPACE)){
-			break;
-		} else {
-			UINT32 codePoint=0;
-			char firstByte=*texto;
-			std::string::difference_type offset=1; //TODO: esta var se puede ahorrar al ir incrementando mientras se lee cada byte
-			if(firstByte&128) { // This means the first byte has a value greater than 127, and so is beyond the ASCII range.
-        			if(firstByte & 32) // This means that the first byte has a value greater than 191, and so it must be at least a three-octet code point.
-        			{
-					if(firstByte & 16) // This means that the first byte has a value greater than 224, and so it must be a four-octet code point.
-					{
-						codePoint = (firstByte & 0x07) << 18;
-						char secondByte = *(texto + 1);
-						codePoint +=  (secondByte & 0x3f) << 12;
-						char thirdByte = *(texto + 2);
-						codePoint +=  (thirdByte & 0x3f) << 6;;
-						char fourthByte = *(texto + 3);
-						codePoint += (fourthByte & 0x3f);
+// Returns true if the user pressed the skip button (button 1 or space).
+bool Pergamino::skipRequested() const
+{
+    return losControles->estaSiendoPulsado(P1_BUTTON1)
+        || losControles->estaSiendoPulsado(KEYBOARD_SPACE);
+}
 
-						offset=4;	
-					}
-					else
-					{
-						codePoint = (firstByte & 0x0f) << 12;
-						char secondByte = *(texto + 1);
-						codePoint += (secondByte & 0x3f) << 6;
-						char thirdByte = *(texto + 2);
-						codePoint +=  (thirdByte & 0x3f);
+// Draws a single printable glyph at (posX, posY) and advances posX.
+void Pergamino::dibujaGlifo(UINT32 codePoint, int& posX, int posY)
+{
+    const int glyphIndex = static_cast<int>(codePoint) - 0x20;
 
-						offset=3;	
-					}
-				}
-				else
-				{
-					codePoint = (firstByte & 0x1f) << 6;
-					char secondByte = *(texto + 1);
-					codePoint +=  (secondByte & 0x3f);
+    // Upper-case (0x40–0x5F range) uses color 1, everything else color 0.
+    const int color = ((codePoint & 0x60) == 0x40) ? 1 : 0;
 
-					offset=2;	
-				}
-			}
-			else
-			{
-				codePoint = firstByte;
-			}
-//			texto+=offset;
-			int caracter = codePoint;
-//fprintf(stderr,"caracter %ld 0x%04x\n", caracter,caracter);
-			// dependiendo del carácter leido
-			switch (caracter){
-				case 0x1a:			// fín de pergamino
-					break;
-				case 0x0d:			// salto de línea
-					posX = 76;
-					posY += 16;
-					timer->sleep(600);
+    const UINT16* charTable = reinterpret_cast<UINT16*>(&roms[0x680c]);
+    int charOffset = SDL_SwapLE16(charTable[glyphIndex]);
 
-					// si hay que pasar página del pergamino
-					if (posY > 164){
-						posX = 76;
-						posY = 16;
-						timer->sleep(2000);
-						pasaPagina();
-					}
-					break;
-				case 0x20:			// espacio
-					posX += 10;
-					timer->sleep(30);
-					break;
-				case 0x0a:			// salto de página
-					posX = 76;
-					posY = 16;
-					timer->sleep(3*525);
-					pasaPagina();
-					break;
+    // Warn about undefined glyphs (fall back to 'z').
+    const int zOffset = SDL_SwapLE16(charTable['z' - 0x20]);
+    if (charOffset == zOffset && codePoint != 'z')
+        printf("WARNING: undefined glyph U+%04X\n", codePoint);
 
-				default:			// carácter imprimible
-					UINT8 const * pTrazosCaracter= 
-//						TablapTrazosCaracter[(*texto)-0x20];
-						TablapTrazosCaracter[(caracter)-0x20];
-					// elige un color dependiendo de si es mayúsculas o minúsculas
+    if (charTable[glyphIndex] == 0)
+        charOffset = zOffset;
 
-					// la paleta CPC del pergamino es 07,28,20,12
-					// o sea
-					// el color 0 es el 07 que es pink
-					// el color 1 es el 28 que es red
-					// el color 2 es el 20 que es black
-					// el color 3 es el 12 que es bright red
+    const UINT8* strokes = TablapTrazosCaracter[glyphIndex];
+    while ((*strokes & 0xF0) != 0xF0) {
+        const int drawX = posX + (*strokes & 0x0F);
+        const int drawY = posY + ((*strokes >> 4) & 0x0F);
+        cpc6128->setVGAPixel(drawX, drawY, color);
+        ++strokes;
+        elJuego->timer->sleep(8);
+    }
 
-					//CPC					int color = (((*texto) & 0x60) == 0x40) ? 3 : 2;
-					//Para VGA pongo el color 1?? para las mayusculas y el color 0?? para las minusculas
-					// TODO: revisar para UTF8
-					//int color = (((*texto) & 0x60) == 0x40) ? 1 : 0;
-					int color = (((caracter) & 0x60) == 0x40) ? 1 : 0;
+    posX += *strokes & 0x0F; // terminal byte encodes advance width
+}
 
-					// obtiene el desplazamiento a los datos de formación del carácter
-					// transformando del dato nativo en litte_endian
-					// al tipo del sistema (si es little_endian no hace nada,
-					// y si es big_endian intercambia el orden)
-					//int charOffset = SDL_SwapLE16(charTable[(*texto) - 0x20]);
-					int charOffset = SDL_SwapLE16(charTable[(caracter) - 0x20]);
+void Pergamino::dibujaTexto(const unsigned char* texto)
+{
+    TimingHandler* timer = elJuego->timer;
 
-					// para alertar si nos hemos dejado algo sin definir
-					if (*texto!='z' && charOffset==SDL_SwapLE16(charTable['z'-0x20])) 	
-						printf("¡¡¡ NOS HEMOS DEJADO ALGUN CARACTER SIN DEFINIR !!! %c\n",*texto);
+    int posX = 76;
+    int posY = 16;
 
-					// si el caracter no está definido, muestra una 'z'
-					//if (charTable[(*texto) - 0x20] == 0){
-					if (charTable[(caracter) - 0x20] == 0){
-						charOffset = SDL_SwapLE16(charTable['z' - 0x20]);
-					}
+    while (true) {
+        losControles->actualizaEstado();
+        if (skipRequested()) break;
 
-					// mientras queden trazos del carácter
-//					while ((roms[charOffset] & 0xf0) != 0xf0){
-					while ((*pTrazosCaracter & 0xf0) != 0xf0){
-						// halla el desplazamiento del trazo
-//						int newPosX = posX + (roms[charOffset] & 0x0f);
-//						int newPosy = posY + ((roms[charOffset] >> 4) & 0x0f);
-						int newPosX = posX+(*pTrazosCaracter & 0x0f);
-						int newPosy=posY+((*pTrazosCaracter>>4)&0x0f);
+        const UINT32 codePoint = decodeUtf8(texto); // advances `texto`
 
-						// dibuja el trazo del carácter
-						//CPC cpc6128->setMode1Pixel(newPosX, newPosy, color);
-						cpc6128->setVGAPixel(newPosX, newPosy, color);
+        switch (codePoint) {
+            case 0x1A: // end of scroll — stop
+                return;
 
-						charOffset++;
-						pTrazosCaracter++;
+            case 0x0D: // carriage return / new line
+                posX = 76;
+                posY += 16;
+                timer->sleep(600);
+                if (posY > 164) {
+                    posX = 76;
+                    posY = 16;
+                    timer->sleep(2000);
+                    pasaPagina();
+                }
+                break;
 
-						// espera un poco para que se pueda apreciar como se traza el carácter
-						timer->sleep(8);
-					}
+            case 0x0A: // form feed / page break
+                posX = 76;
+                posY = 16;
+                timer->sleep(3 * 525);
+                pasaPagina();
+                break;
 
-					// avanza la posición hasta el siguiente carácter
-//					posX += roms[charOffset] & 0x0f;
-					posX += *pTrazosCaracter & 0x0f;
-			}
+            case 0x20: // space
+                posX += 10;
+                timer->sleep(30);
+                break;
 
-			// apunta al siguiente carácter a imprimir
-/*			if (*texto != 0x1a){
-				texto++;
-			} */
-			if (caracter != 0x1a){
-				texto+=offset;
-			}
-		}
-	}
+            default:
+                dibujaGlifo(codePoint, posX, posY);
+                break;
+        }
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////

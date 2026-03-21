@@ -20,14 +20,10 @@ const bool TimingHandler::g_skipTable[FRAMESKIP_LEVELS][FRAMESKIP_LEVELS] = {
 	{ false, true, true, true, true, true, true, true, true, true, true, true }
 };
 
-/////////////////////////////////////////////////////////////////////////////
 // initialization and cleanup
-/////////////////////////////////////////////////////////////////////////////
-
 TimingHandler::TimingHandler()
 {
 	_timer = 0;
-
 	_numInterruptsPerSecond = 0;
 	_numInterruptsPerVideoUpdate = 0;
 	_numInterruptsPerLogicUpdate = 0;

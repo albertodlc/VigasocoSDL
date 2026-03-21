@@ -49,7 +49,7 @@ protected:
 	void dibuja();
 	//void dibujaTexto(const char *texto);
 	void dibujaTexto(const unsigned char *texto);
-
+	void dibujaGlifo(UINT32 codePoint, int& posX, int posY);
 	void dibujaTiraHorizontal(int y, UINT8 *data);
 	void dibujaTiraVertical(int x, UINT8 *data);
 
@@ -57,6 +57,7 @@ protected:
 	void restauraParteSuperiorYDerecha(int x, int y, int lado);
 	void restauraParteInferior(int x, int y, int lado);
 	void pasaPagina();
+	bool skipRequested() const;
 private:
 	int AdaptaColorAPaletaVGA(int a,int b); // VGA
 	// los primeros 0x20 caracteres del ASCII no son imprimibles

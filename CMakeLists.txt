@@ -35,6 +35,7 @@ add_library(vigasoco_core STATIC ${CORE_SOURCES})
 target_include_directories(vigasoco_core PUBLIC
     "${CMAKE_SOURCE_DIR}/core"
     "${CMAKE_SOURCE_DIR}/core/abadia"
+    "${CMAKE_SOURCE_DIR}/core/abadia/ui"
     "${CMAKE_SOURCE_DIR}/core/util"
     "${CMAKE_SOURCE_DIR}/core/systems"
 )
@@ -62,6 +63,7 @@ target_link_libraries(vigasoco PRIVATE
 target_include_directories(vigasoco PRIVATE
     "${CMAKE_SOURCE_DIR}/core"
     "${CMAKE_SOURCE_DIR}/core/abadia"
+    "${CMAKE_SOURCE_DIR}/core/abadia/ui"
     "${CMAKE_SOURCE_DIR}/core/util"
     "${CMAKE_SOURCE_DIR}/core/systems"
     "${CMAKE_SOURCE_DIR}/platform/sdl2"
