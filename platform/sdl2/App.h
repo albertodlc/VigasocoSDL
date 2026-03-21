@@ -48,7 +48,7 @@ protected:
     virtual void removeCustomLoaders(FileLoader *fl);
     virtual void destroyPalette();
     virtual void platformSpecificEnd();
-    virtual bool processEvents();
+    virtual bool processExitEvents();
 };
 
 #endif  // _APP_H_

@@ -185,7 +185,10 @@ bool Vigasoco::init(std::string name)
 	return true;
 }
 
-// ! END
+/**
+ * @brief Handle the main loop exit and the game shutdown
+ * 
+ */
 void Vigasoco::end()
 {
 	// notify the driver that the audioPlugin is going to be disposed
@@ -199,7 +202,6 @@ void Vigasoco::end()
 	if (_audioPlugin){
 		_audioPlugin->end();
 	}
-
 	// calls template method to stop and deallocate the audio plugin
 	destroyAudioPlugin();
 
@@ -211,11 +213,7 @@ void Vigasoco::end()
 	// stops and deallocates the timing handler
 	if (_timingHandler){
 		_timingHandler->end();
-		//FIXME TODO SDL2
-		// da core dump al salir aunque no es seguro que sea por esto
-		fprintf(stderr,"antes delete\n"); fflush(stderr);
 		delete _timingHandler;
-		fprintf(stderr,"despues delete\n"); fflush(stderr);
 		_timingHandler = 0;
 	}
 
@@ -281,6 +279,10 @@ void Vigasoco::initFrame()
 	_numFrames++;
 }
 
+/**
+ * @brief 
+ * 
+ */
 void Vigasoco::mainLoop()
 {
 	// start async game logic
@@ -289,7 +291,7 @@ void Vigasoco::mainLoop()
 	// main sync loop
 	while (true){
 		// call template method to process any platform specific events
-		if (!processEvents()){
+		if (processExitEvents()){
 			// if we've received the quit message, exit
 
 			return;
@@ -344,7 +346,6 @@ void Vigasoco::mainLoop()
 
 
 // ! Helper methods
-
 GameDriver * Vigasoco::createGameDriver(std::string game)
 {
 	// TODO: move this to a factory
@@ -385,8 +386,20 @@ void Vigasoco::processCoreInputs()
         }
 }
 
-void Vigasoco::showFPS(bool skipThisFrame)
+/**
+ * @brief Display a FPS counter overlay
+ * 
+ * @param skipThisFrame 
+ * @param isEnabled true if enabled, false otherwise
+
+ */
+void Vigasoco::showFPS(bool skipThisFrame, bool isEnabled)
 {
+	// ! EARLY RETURN: Disabled the FPS counter
+	if(!isEnabled){
+		return;
+	}
+
 	// Default value
     static char buf[256] = "0/0 fps";
     int frameSkip = _timingHandler->getVideoFrameSkip();

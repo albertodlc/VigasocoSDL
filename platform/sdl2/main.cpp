@@ -49,6 +49,7 @@ int main(int argc, char **argv)
         showError(app.getError());
         app.end();
         SDL_Quit();
+		
         return -1;
     }
 

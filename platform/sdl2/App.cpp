@@ -168,18 +168,23 @@ void VigasocoSDL::platformSpecificEnd()
     // Close SDL
     SDL_Quit();}
 
-/////////////////////////////////////////////////////////////////////////////
-// main loop
-/////////////////////////////////////////////////////////////////////////////
-
-bool VigasocoSDL::processEvents()
+/**
+ * @brief Process the 'Main loop' exit events
+ * 
+ * @return true if is an exit event, false otherwise
+ */
+bool VigasocoSDL::processExitEvents()
 {
     SDL_Event event;
     if (SDL_PollEvent(&event))
     {
-        if (event.type == SDL_QUIT) return false;
-        if (event.type == SDL_KEYDOWN &&
-            event.key.keysym.sym == SDLK_ESCAPE) return false;
+        bool isExitEvent = (
+            event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE ||
+            event.type == SDL_QUIT
+        );
+
+        return isExitEvent;
     }
-    return true;
+
+    return false;
 }

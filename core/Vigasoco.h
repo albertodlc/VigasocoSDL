@@ -104,14 +104,14 @@ protected:
 	virtual void destroyPalette() = 0;
 	virtual void platformSpecificEnd() = 0;
 
-	virtual bool processEvents() = 0;
+	virtual bool processExitEvents() = 0;
 	virtual void initFrame();
 	virtual void endFrame(){}
 
 	// helper methods
 	GameDriver *createGameDriver(std::string game);
 	void processCoreInputs();
-	void showFPS(bool skipThisFrame);
+	void showFPS(bool skipThisFrame, bool isEnabled = false);
 };
 
 #endif	// _VIGASOCO_H_
