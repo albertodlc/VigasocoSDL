@@ -3,7 +3,6 @@
 //	Class that handles the speed of the current game (this is heavily based 
 //	in M.A.M.E. frame skipping system).
 //
-/////////////////////////////////////////////////////////////////////////////
 
 #ifndef _TIMING_HANDLER_H_
 #define _TIMING_HANDLER_H_

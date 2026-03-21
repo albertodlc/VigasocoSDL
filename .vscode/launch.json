@@ -12,6 +12,7 @@
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
+            "preLaunchTask": "Build Vigasoco",
             "setupCommands": [
                 {
                     "description": "Enable pretty printing",

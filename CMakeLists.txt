@@ -6,6 +6,9 @@ set(CMAKE_BUILD_TYPE Debug)
 
 # SDL2
 find_package(SDL2 REQUIRED)
+find_package(SDL2_ttf REQUIRED)
+
+include_directories(${SDL2_TTF_INCLUDE_DIRS})
 include_directories(${SDL2_INCLUDE_DIRS})
 
 # Global include paths
@@ -51,6 +54,7 @@ add_executable(vigasoco ${PLATFORM_SOURCES})
 target_link_libraries(vigasoco PRIVATE
     vigasoco_core
     ${SDL2_LIBRARIES}
+    SDL2_ttf::SDL2_ttf
     dl
 )
 

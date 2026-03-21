@@ -103,6 +103,14 @@ void VigasocoSDL::createAsyncThread()
 
 void VigasocoSDL::initCompleted()
 {
+    // Load font for text rendering
+    SDLDrawPlugin8bpp* plugin = dynamic_cast<SDLDrawPlugin8bpp*>(_drawPlugin);
+    if (plugin){
+        if (!plugin->loadFont("fonts/arial.ttf", 16)){
+            fprintf(stderr, "Failed to load font: %s\n", TTF_GetError());
+        }
+    }
+
     // TODO: set window title once we have access to the window handle
     // SDL_SetWindowTitle(window, ("VigasocoSDL: " + _driver->getFullName()).c_str());
     SDL_ShowCursor(SDL_DISABLE);
@@ -154,8 +162,11 @@ void VigasocoSDL::destroyPalette()
 
 void VigasocoSDL::platformSpecificEnd()
 {
-    // nothing to clean up — no plugin handles
-}
+    // Close the font system
+    TTF_Quit();
+
+    // Close SDL
+    SDL_Quit();}
 
 /////////////////////////////////////////////////////////////////////////////
 // main loop

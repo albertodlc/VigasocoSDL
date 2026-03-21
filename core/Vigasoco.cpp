@@ -17,10 +17,7 @@
 //para sprintf
 #include <stdio.h>
 
-/////////////////////////////////////////////////////////////////////////////
 // initialization and cleanup
-/////////////////////////////////////////////////////////////////////////////
-
 Vigasoco::Vigasoco()
 {
 	_speedThrottle = true;
@@ -45,9 +42,8 @@ Vigasoco::~Vigasoco()
 {
 }
 
-/////////////////////////////////////////////////////////////////////////////
+
 // init
-/////////////////////////////////////////////////////////////////////////////
 bool Vigasoco::init(std::string name)
 {
 	// calls template method to perform platform specific initialization
@@ -391,27 +387,19 @@ void Vigasoco::processCoreInputs()
 
 void Vigasoco::showFPS(bool skipThisFrame)
 {
-	static char buf[256];
+	// Default value
+    static char buf[256] = "0/0 fps";
+    int frameSkip = _timingHandler->getVideoFrameSkip();
 
-	int frameSkip = _timingHandler->getVideoFrameSkip();
+    // check if we have to update current FPS
+    if ((_numFrames % (TimingHandler::FRAMES_PER_FPS_UPDATE) * (frameSkip + 1)) == 0){
+        int currentFPS = (int)floor(_timingHandler->getCurrenFPS() + 0.5);
+        int gameFPS = _driver->getVideoInfo()->refreshRate;
+        sprintf(buf, "%d/%d fps[fs %d]", currentFPS, gameFPS, frameSkip);
+    }
 
-	// check if we have to update current FPS
-	if ((_numFrames % (TimingHandler::FRAMES_PER_FPS_UPDATE)*(frameSkip + 1)) == 0){
-
-		int currentFPS = (int)floor(_timingHandler->getCurrenFPS() + 0.5);
-		int gameFPS = _driver->getVideoInfo()->refreshRate;
-
-		sprintf(buf, "%d/%d fps[fs %d]", currentFPS, gameFPS, frameSkip);
-	}
-
-	// show FPS
-	if (!skipThisFrame){
-		//_fontManager->print(_drawPlugin, buf, 0, 0);
-		//TODO: en la version SDL, el fontManager no funciona
-		//...faltan metodos de los plugins graficos...
-		//no descomentar ya que da core al devolver NULL
-		//muchos metodos no implementados
-		//usar mejor un simple printf
-		//fprintf(stderr,"FPS: %s\n",buf); 
-	}
+    // show FPS
+    if (!skipThisFrame && _drawPlugin){
+        _drawPlugin->print(10, 10, buf);
+    }
 }

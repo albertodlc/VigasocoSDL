@@ -35,9 +35,6 @@ bool SDLBasicDrawPlugin<T>::init(const VideoInfo *vi, IPalette *pal)
 				vi->width,vi->height,_bpp,SDL_GetError());
 		return false;
 	}
-	
-	//	printf("set %dx%dx%d video mode(%s): %s\n",
-	//				vi->width,vi->height,_bpp,screen->flags & SDL_DOUBLEBUF?"DOUBLEBUFF":"No double buffer",SDL_GetError());
 
 	Uint32 format = SDL_PIXELFORMAT_ARGB8888;
 	// SDL2 does not support palettized textures.
@@ -147,10 +144,7 @@ void SDLBasicDrawPlugin<T>::end()
 }
 
 
-/////////////////////////////////////////////////////////////////////////////
 // Palette changes
-/////////////////////////////////////////////////////////////////////////////
-
 template<typename T>
 void SDLBasicDrawPlugin<T>::updateFullPalette(IPalette *palette)
 {
@@ -191,43 +185,47 @@ inline void SDLBasicDrawPlugin<T>::updateRect(int x,int y)
 template<typename T>
 void SDLBasicDrawPlugin<T>::render(bool throttle)
 {
-#ifdef _EE
-	SDL_UpdateRects(screen,0,NULL);
-#else
+	#ifdef _EE
+		SDL_UpdateRects(screen,0,NULL);
+	#else
 
-/* 
-// TODO SDL2
-// probar a optimizar con rectangulos como en el plugin SDL1
+	/* 
+	TODO SDL2
+	probar a optimizar con rectangulos como en el plugin SDL1
 
-	int n=0;
-	for(int i=0;i<xrects;i++)
-	{
-		for(int j=0;j<yrects;j++)
+		int n=0;
+		for(int i=0;i<xrects;i++)
 		{
-			if (updated_rect[i][j])
+			for(int j=0;j<yrects;j++)
 			{
-				SDLRects[n].x=i<<FACTOR_REJILLA;
-				SDLRects[n].y=j<<FACTOR_REJILLA;
-				SDLRects[n].w=1<<FACTOR_REJILLA;
-				SDLRects[n++].h=1<<FACTOR_REJILLA;
+				if (updated_rect[i][j])
+				{
+					SDLRects[n].x=i<<FACTOR_REJILLA;
+					SDLRects[n].y=j<<FACTOR_REJILLA;
+					SDLRects[n].w=1<<FACTOR_REJILLA;
+					SDLRects[n++].h=1<<FACTOR_REJILLA;
+				}
 			}
 		}
-	}
-	if(n)
-	{
-		SDL_UpdateRects(screen,n,SDLRects);
-                for(int i=0;i<xrects;i++)
-                {
-                        for(int j=0;j<yrects;j++)
-                        {
-                                updated_rect[i][j]=false;
-                        }
-                }
-	}
-*/
+		if(n)
+		{
+			SDL_UpdateRects(screen,n,SDLRects);
+					for(int i=0;i<xrects;i++)
+					{
+							for(int j=0;j<yrects;j++)
+							{
+									updated_rect[i][j]=false;
+							}
+					}
+		}
+	*/
+
 	SDL_UpdateTexture(texture, NULL, myPixels, _pitch);
 	SDL_RenderClear(renderer);
 	SDL_RenderCopy(renderer,texture,NULL,NULL);
+	// NOTE: text/overlays should be drawn here, after RenderCopy
+    // but before RenderPresent — subclasses can override renderOverlays()
+    renderOverlays();
 	SDL_RenderPresent(renderer);
 #endif
 };

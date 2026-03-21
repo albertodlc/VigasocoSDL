@@ -23,6 +23,7 @@ For modern Linux distributions (Ubuntu, Debian, Fedora, etc.).
 * **Requirements:** `g++`, `make`, and `libsdl1.2-dev`.
 ```bash
 sudo apt install libsdl2-dev libsdl1.2-dev g++ make
+sudo apt install libsdl2-ttf-dev
 sudo apt install gdb
 ```
 

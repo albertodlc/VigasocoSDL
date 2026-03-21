@@ -28,8 +28,7 @@ public:
 	virtual void Pause(int sample) = 0;
 	virtual void Stop(int sample) = 0;
 	virtual bool LoadWAV(const char *nombre_y_ruta_fichero) = 0;
-	virtual bool LoadWAV(const UINT8 *data, const UINT32 len) = 0;
-
+	virtual bool LoadWAV(const UINT8 *data, const UINT32 len) = 0;	
 	virtual void acquire() = 0; // ?? sirve para algo
 	virtual void unAcquire() = 0; // ?? sirve para algo
 
