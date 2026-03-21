@@ -35,7 +35,7 @@ make
 New way (CMake)
 ```bash
 cd ./build
-CMake
+cmake ..
 make
 ```
 

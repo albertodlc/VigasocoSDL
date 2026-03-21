@@ -10,7 +10,7 @@
 
 #include "IThread.h"
 #include <SDL2/SDL.h>
-#include "SDL_thread.h"
+#include <SDL2/SDL_thread.h>
 
 #ifdef __EMSCRIPTEN_PTHREADS__ 
 #include <pthread.h>

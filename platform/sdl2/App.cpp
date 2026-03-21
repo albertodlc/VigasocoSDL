@@ -1,67 +1,39 @@
-// VigasocoSDL.cpp
-//
+// App.cpp
+// SDL2 platform application layer — no runtime plugin system
 /////////////////////////////////////////////////////////////////////////////
 
-#include "IDrawPlugin.h"
-#include "SDLPalette.h"
+#include "App.h"
+#include "Palette.h"
+#include "CriticalSection.h"
+#include "Thread.h"
 #include "FileLoader.h"
 #include "FontManager.h"
-#include "IInputPlugin.h"
 #include "InputHandler.h"
 #include "TimingHandler.h"
-#include "VigasocoSDL.h"
+#include "IDrawPlugin.h"
+#include "IInputPlugin.h"
 
 #ifdef RDTSC
 #include "RDTSCTimer.h"
 #else
-#include "SDLTimer.h"
+#include "Timer.h"
 #endif
 
-#include "SDLCriticalSection.h"
-#include "SDLThread.h"
+// SDL2 platform implementations
+#include "video/SDLVideoPlugins.h"
+#include "audio/SDLAudioPlugin.h"
+#include "input/SDLInputKeyboardPlugin.h"
 
-// para los eventos y para poner el titulo de la ventana
 #include <SDL2/SDL.h>
-
-#ifdef _EE
-bool PS2SpecificInit(void);
-#endif
-
-// current plugin versions
-int VigasocoSDL::g_currentVideoPluginVersion = 1;
-int VigasocoSDL::g_currentInputPluginVersion = 1;
-int VigasocoSDL::g_currentLoaderPluginVersion = 1;
-int VigasocoSDL::g_currentAudioPluginVersion = 1;
-
-// paths for the plugins
-std::string VigasocoSDL::g_videoPluginPath = "video/";
-std::string VigasocoSDL::g_inputPluginPath = "input/";
-std::string VigasocoSDL::g_loaderPluginPath = "loaders/";
-std::string VigasocoSDL::g_audioPluginPath = "audio/";
 
 /////////////////////////////////////////////////////////////////////////////
 // initialization and cleanup
 /////////////////////////////////////////////////////////////////////////////
 
-VigasocoSDL::VigasocoSDL(std::string game,
-				std::string drawPluginsDLL,
-				std::string drawPlugin,
-				Strings inputPluginsDLLs,
-				Strings inputPlugins,
-				std::string audioPluginsDLL,
-				std::string audioPlugin,
-				Strings paths)
+VigasocoSDL::VigasocoSDL(std::string game, Strings paths)
 {
-	_pluginHandler = 0;
-	_game = game;
-
-	_sDrawPluginsDLL = drawPluginsDLL;
-	_sDrawPlugin = drawPlugin;
-	_sInputPluginsDLLs = inputPluginsDLLs;
-	_sInputPlugins = inputPlugins;
-	_sAudioPluginsDLL = audioPluginsDLL;
-	_sAudioPlugin = audioPlugin;
-	_sPaths = paths;
+    _game = game;
+    _sPaths = paths;
 }
 
 VigasocoSDL::~VigasocoSDL()
@@ -72,239 +44,131 @@ VigasocoSDL::~VigasocoSDL()
 // platform services
 /////////////////////////////////////////////////////////////////////////////
 
-ICriticalSection * VigasocoSDL::createCriticalSection()
+ICriticalSection *VigasocoSDL::createCriticalSection()
 {
-	return new SDLCriticalSection();
+    return new SDLCriticalSection();
 }
 
 /////////////////////////////////////////////////////////////////////////////
-// construction template methods overrides
+// construction template methods
 /////////////////////////////////////////////////////////////////////////////
 
 bool VigasocoSDL::platformSpecificInit()
 {
-	// creates the plugin handler
-	// TODO:
-	// esto no compila en Linux y no lo usamos en la version SDL
-	//_pluginHandler = new PluginHandler(_settings); 
-
-#ifdef _EE
-	return PS2SpecificInit();
-#else
-	return true;
-#endif
+    return true;
 }
 
 void VigasocoSDL::createPalette()
 {
-	_palette = new SDLPalette();
+    _palette = new SDLPalette();
 }
 
 void VigasocoSDL::addCustomLoaders(FileLoader *fl)
 {
-// TODO
-/* !!! FALTA POR IMPLEMENTAR EN LINUX 
-	HANDLE hSearch;
-	WIN32_FIND_DATA findData;
-
-	SetCurrentDirectory(g_loaderPluginPath.substr(0, g_loaderPluginPath.size() - 1).c_str());
-
-	// traverse all the files in the loader directory searching for plugins
-	hSearch = FindFirstFile("*.dll", &findData);
-	if (hSearch != INVALID_HANDLE_VALUE){
-		do {
-			ILoader *customLoader = 0;
-			DLLEntry entry;
-
-			// try to load the plugin from the DLL
-			if (_pluginHandler->loadPlugin(findData.cFileName, 
-				"CustomLoader", LOADER_PLUGIN, g_currentLoaderPluginVersion, &entry)){
-				customLoader = (ILoader *)entry.plugin;
-			}
-
-			if (customLoader != 0){
-				// save DLL reference for later
-				_loaderPluginsInfo.push_back(entry);
-
-				// add the plugin to the fileLoader
-				fl->addLoader(customLoader);
-			}
-		} while (FindNextFile(hSearch, &findData));
-	}
-	FindClose(hSearch);
-
-	SetCurrentDirectory("..");
-
-	// add optional paths to the file loader
-	for (Strings::size_type i = 0; i < _sPaths.size(); i++){
-		fl->addPath(_sPaths[i]);
-	}
-*/
+    // add optional paths to the file loader
+    for (Strings::size_type i = 0; i < _sPaths.size(); i++){
+        fl->addPath(_sPaths[i]);
+    }
 }
 
 void VigasocoSDL::createDrawPlugin()
 {
-	// load the plugin from a DLL
-	if (_pluginHandler->loadPlugin(g_videoPluginPath + _sDrawPluginsDLL, 
-		_sDrawPlugin, VIDEO_PLUGIN, g_currentVideoPluginVersion, &_drawPluginInfo)){
-		_drawPlugin = (IDrawPlugin *)_drawPluginInfo.plugin;
-	}
-
-	if (_drawPlugin != 0){
-		// TODO: set plugin properties
-	}
+    _drawPlugin = new SDLDrawPlugin8bpp();
 }
 
 void VigasocoSDL::createAudioPlugin()
 {
-	// load the plugin from a DLL
-	if (_pluginHandler->loadPlugin(g_audioPluginPath + _sAudioPluginsDLL, 
-		_sAudioPlugin, AUDIO_PLUGIN, g_currentAudioPluginVersion, &_audioPluginInfo)){
-		_audioPlugin = (IAudioPlugin *)_audioPluginInfo.plugin;
-	}
-
-	if (_audioPlugin != 0){
-		// TODO: set plugin properties
-	}
+    _audioPlugin = new SDLAudioPlugin();
 }
 
 void VigasocoSDL::addCustomInputPlugins()
 {
-	for (Strings::size_type i = 0; i < _sInputPluginsDLLs.size(); i++){
-		DLLEntry entry;
-		IInputPlugin *ip = 0;
-
-		// load the plugin from a DLL
-		if (_pluginHandler->loadPlugin(g_inputPluginPath + _sInputPluginsDLLs[i], 
-			_sInputPlugins[i], INPUT_PLUGIN, g_currentInputPluginVersion, &entry)){
-			ip = (IInputPlugin *)entry.plugin;
-		}
-
-		if (ip != 0){
-			// TODO: set plugin properties
-
-			// save DLL reference for later
-			_inputPluginsInfo.push_back(entry);	
-
-			_inputHandler->addInputPlugin(ip);
-		}
-	}
+    SDLInputKeyboardPlugin *ip = new SDLInputKeyboardPlugin();
+    _inputHandler->addInputPlugin(ip);
 }
 
 void VigasocoSDL::createTimer()
 {
 #ifdef RDTSC
-	_timer = new RDTSCTimer();
+    _timer = new RDTSCTimer();
 #else
-	_timer = new SDLTimer();
+    _timer = new SDLTimer();
 #endif
 }
 
 void VigasocoSDL::createAsyncThread()
 {
-	_asyncThread = new SDLThread();
+    _asyncThread = new SDLThread();
 }
 
 void VigasocoSDL::initCompleted()
 {
-    std::string titulo_ventana = "VigasocoSDL v0.096: " + _driver->getFullName();
-
-    // TODO: SDL_WM_SetCaption removed in SDL2.
-    // SDL_SetWindowTitle(window, titulo_ventana.c_str()) needs a window handle.
-    // The window is owned by the draw plugin — wire it through when refactoring plugins.
-    // SDL_WM_SetCaption(titulo_ventana.c_str(), titulo_ventana.c_str());
-
+    // TODO: set window title once we have access to the window handle
+    // SDL_SetWindowTitle(window, ("VigasocoSDL: " + _driver->getFullName()).c_str());
     SDL_ShowCursor(SDL_DISABLE);
 }
 
 /////////////////////////////////////////////////////////////////////////////
-// destruction template methods overrides
+// destruction template methods
 /////////////////////////////////////////////////////////////////////////////
 
 void VigasocoSDL::destroyAsyncThread()
 {
-	delete _asyncThread;
-	_asyncThread = 0;
+    delete _asyncThread;
+    _asyncThread = 0;
 }
 
 void VigasocoSDL::destroyTimer()
 {
-	delete _timer;
-	_timer = 0;
+    delete _timer;
+    _timer = 0;
 }
 
 void VigasocoSDL::removeCustomInputPlugins()
 {
-	// delete the plugins and free DLLs
-	for (DLLEntries::size_type i = 0; i < _inputPluginsInfo.size(); i++){
-		_inputHandler->removeInputPlugin((IInputPlugin *)_inputPluginsInfo[i].plugin);
-		_pluginHandler->unloadPlugin(&_inputPluginsInfo[i]);
-	}
-	_inputPluginsInfo.clear();
+    // input handler owns and deletes its plugins
 }
 
 void VigasocoSDL::destroyDrawPlugin()
 {
-	_pluginHandler->unloadPlugin(&_drawPluginInfo);
+    delete _drawPlugin;
+    _drawPlugin = 0;
 }
 
 void VigasocoSDL::destroyAudioPlugin()
 {
-	_pluginHandler->unloadPlugin(&_audioPluginInfo);
+    delete _audioPlugin;
+    _audioPlugin = 0;
 }
 
 void VigasocoSDL::removeCustomLoaders(FileLoader *fl)
 {
-	// delete the plugins and free DLLs
-	for (DLLEntries::size_type i = 0; i < _loaderPluginsInfo.size(); i++){
-		fl->removeLoader((ILoader *)_loaderPluginsInfo[i].plugin);
-		_pluginHandler->unloadPlugin(&_loaderPluginsInfo[i]);
-	}
-	_loaderPluginsInfo.clear();
+    // nothing to remove — no custom loaders added
 }
 
 void VigasocoSDL::destroyPalette()
 {
-	delete _palette;
-	_palette = 0;
+    delete _palette;
+    _palette = 0;
 }
 
 void VigasocoSDL::platformSpecificEnd()
 {
-	assert(!_drawPluginInfo.libHandle);
-	assert(_inputPluginsInfo.size() == 0);
-	assert(_loaderPluginsInfo.size() == 0);
-	assert(!_audioPluginInfo.libHandle);
-
-	delete _pluginHandler;
-	_pluginHandler = 0;
-} 
+    // nothing to clean up — no plugin handles
+}
 
 /////////////////////////////////////////////////////////////////////////////
-// main loop template methods overrides
+// main loop
 /////////////////////////////////////////////////////////////////////////////
 
 bool VigasocoSDL::processEvents()
 {
-	SDL_Event event;
-	if ( SDL_PollEvent(&event) )
-	{
-		if (event.type==SDL_QUIT) return false;
-#ifndef __native_client__
-// en el navegador no salimos al pulsar ESC, porque se queda la pantalla sin limpiar y parece que se ha colgado
-// habría que buscar una manera de finalizar de una manera elegante
-		if (event.type==SDL_KEYDOWN && event.key.keysym.sym==SDLK_ESCAPE) return false;
-#endif
-	}
-
-	return true;
+    SDL_Event event;
+    if (SDL_PollEvent(&event))
+    {
+        if (event.type == SDL_QUIT) return false;
+        if (event.type == SDL_KEYDOWN &&
+            event.key.keysym.sym == SDLK_ESCAPE) return false;
+    }
+    return true;
 }
-
-/////////////////////////////////////////////////////////////////////////////
-// window procedure
-/////////////////////////////////////////////////////////////////////////////
-
-// windows function
-//LRESULT CALLBACK VigasocoWin32::wndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
-// TODO
-// No hay nada parecido por ahora en la version Linux
