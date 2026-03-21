@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.10)
 project(Vigasoco)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_BUILD_TYPE Debug)
+
 # SDL2
 find_package(SDL2 REQUIRED)
 include_directories(${SDL2_INCLUDE_DIRS})
@@ -67,4 +70,13 @@ target_include_directories(vigasoco PRIVATE
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/VigasocoSDL)
 set_target_properties(vigasoco PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/VigasocoSDL"
+)
+
+# Copy assets folder to build output directory
+add_custom_command(
+    TARGET vigasoco POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_SOURCE_DIR}/assets"
+        "${CMAKE_BINARY_DIR}/VigasocoSDL"
+    COMMENT "Copying assets to build directory"
 )

@@ -2,8 +2,6 @@
 //
 //	Abstract class that defines the interface of a thread
 //
-/////////////////////////////////////////////////////////////////////////////
-
 #ifndef _ITHREAD_H_
 #define _ITHREAD_H_
 
