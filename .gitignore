@@ -5,4 +5,5 @@ VigasocoSDL/audio/
 VigasocoSDL/input/
 VigasocoSDL/video/
 .idea
+.suo
 /build
