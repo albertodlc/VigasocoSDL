@@ -26,10 +26,21 @@ sudo apt install libsdl2-dev libsdl1.2-dev g++ make
 ```
 
 * **Execution:**
+Old way (`Makefile`)
 ```bash
 make clean
 make
 ```
+
+New way (CMake)
+```bash
+cd ./build
+CMake
+make
+```
+
+* **Executable**
+A file name `vigasoco` is created. It must be copied to `/VigasocoSDL` where all the game assets are saved.
 
 ### PS3 Linux (OtherOS / KBOOT)
 For the PlayStation 3 specifically running a Linux distro (like Yellow Dog Linux). This uses the PS3's internal hardware through the KBOOT loader.

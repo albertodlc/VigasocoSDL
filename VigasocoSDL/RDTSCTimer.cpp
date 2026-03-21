@@ -4,9 +4,7 @@
 
 #include "RDTSCTimer.h"
 #include <SDL2/SDL.h>
-
-// Para SDL_HasRDTSC()
-#include "SDL_cpuinfo.h"
+#include <SDL2/SDL_cpuinfo.h> // Change SDL to SDL2
 
 /////////////////////////////////////////////////////////////////////////////
 // initialization and cleanup
