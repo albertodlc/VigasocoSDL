@@ -423,7 +423,7 @@ void Pergamino::dibujaTiraVertical(int x, UINT8 *data) {
     for (int i = 0; i < 2; i++) {
       for (int k = 0; k < 4; k++) {
         //				cpc6128->setMode1Pixel(x + 4*i + k, j,
-        //cpc6128->unpackPixelMode1(*data, k));
+        // cpc6128->unpackPixelMode1(*data, k));
         cpc6128->setMode1Pixel(x + 4 * i + k, j,
                                AdaptaColorAPaletaVGA(*data, k));
       }
@@ -432,11 +432,7 @@ void Pergamino::dibujaTiraVertical(int x, UINT8 *data) {
   }
 }
 
-/////////////////////////////////////////////////////////////////////////////
 // escritura de texto en el pergamino
-/////////////////////////////////////////////////////////////////////////////
-
-// void Pergamino::muestraTexto(const char *texto)
 void Pergamino::muestraTexto(const unsigned char *texto) {
   // pone la paleta negra
   elJuego->paleta->setGamePalette(0);
@@ -565,13 +561,21 @@ void Pergamino::dibujaTexto(const unsigned char *texto) {
   }
 }
 
-/////////////////////////////////////////////////////////////////////////////
 // paso de página del pergamino
-/////////////////////////////////////////////////////////////////////////////
 
-// dibuja un triángulo rectángulo de color1 con catetos paralelos a los ejes x e
-// y, y limpia los 4
-//  pixels a la derecha de la hipotenusa del triángulo con el color2
+/**
+ * @brief Dibuja lateral de la hoja del pergamino
+ *
+ * Dibuja un triángulo rectángulo de color1 con catetos paralelos a los ejes x e
+ * y, y limpia los 4
+ * pixels a la derecha de la hipotenusa del triángulo con el color2
+ *
+ * @param x
+ * @param y
+ * @param lado
+ * @param color1
+ * @param color2
+ */
 void Pergamino::dibujaTriangulo(int x, int y, int lado, int color1,
                                 int color2) {
   lado = lado * 4;

@@ -104,10 +104,7 @@ bool TimingHandler::init(ITimer *t, int intsPerSecond, int intsPerVideoUpdate,
 
 void TimingHandler::end() { _timer->end(); }
 
-/////////////////////////////////////////////////////////////////////////////
 // skipping methods
-/////////////////////////////////////////////////////////////////////////////
-
 bool TimingHandler::processLogicThisInterrupt() {
   return _numIntsModLogicInts == 0;
 }
@@ -121,10 +118,7 @@ bool TimingHandler::skipVideoThisInterrupt() {
   return _lastVideoFrameSkipped;
 }
 
-/////////////////////////////////////////////////////////////////////////////
 // time related methods
-/////////////////////////////////////////////////////////////////////////////
-
 void TimingHandler::waitThisInterrupt() {
   _numIntsModLogicInts = _interruptNum % _numInterruptsPerLogicUpdate;
   _numIntsModVideoInts = _interruptNum % _numInterruptsPerVideoUpdate;
@@ -192,9 +186,8 @@ void TimingHandler::speedThrottle() {
 // sleeps for some time taking in account the actual frameskip
 void TimingHandler::sleep(UINT32 milliSeconds) {
   // if we aren't throttling, return immediately
-  if (!_throttle) {
+  if (!_throttle || !_timer)
     return;
-  }
 
   // adjust milliseconds based on the frame skip level
   milliSeconds =
@@ -223,10 +216,7 @@ void TimingHandler::sleep(UINT32 milliSeconds) {
   }
 }
 
-/////////////////////////////////////////////////////////////////////////////
 // helper methods
-/////////////////////////////////////////////////////////////////////////////
-
 void TimingHandler::computeFPS() {
   _perfomance.framesSinceLastFPS++;
 

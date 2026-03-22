@@ -7,36 +7,39 @@
 //
 //	The lifecycle of a game driver is:
 //		* fill all game fields in the constructor (video info, game
-//files, gfx 		format, input ports, DIPS, etc).
+// files, gfx 		format, input ports, DIPS, etc).
 //		* the core calls to GameDriver::init that does the following:
 //			- load all the files in the game data entities.
 //			- call template method filesLoaded, where the driver
-//does specific 			initialization (set color palette, unscramble gfx, etc).
+// does specific 			initialization (set color palette,
+// unscramble gfx, etc).
 //			- decode all game data entity of type GRAPHICS, using
-//the items in 			_gfxEncoding (the first graphic entity uses the first item, and
-//so on).
+// the items in 			_gfxEncoding (the first graphic entity
+// uses the first item, and so on).
 //			- call template method graphicsDecoded, where the driver
-//can do any 			specific processing.
+// can do any 			specific processing.
 //			- deallocate the memory used by the game data entities.
 //			- call template method finishInit, where the driver can
-//do last 			specific processing before the driver starts running.
+// do last 			specific processing before the driver starts
+// running.
 //		* the core calls to the template method videoInitialized after
-//creating the 		graphic plugin.
+// creating the 		graphic plugin.
 //		* while the application is running, the core calls to:
 //			- GameDriver::runAsync, only once at the beginning, that
-//starts a new 				thread to execute game logic that isn't synchronized with a
-//frame.
+// starts a new 				thread to execute game logic
+// that isn't synchronized with a frame.
 //			- GameDriver::runSync, that executes the logic for a
-//frame.
+// frame.
 //			- GameDriver::render, that draws the game bitmap.
 //			- GameDriver::showGameLogic, that it's used to show some
-//internal 			data in order to better understand how the game works.
+// internal 			data in order to better understand how the game
+// works.
 //		* when the application is closing, the core calls to the
-//template method 		videoFinalizing to notify that the graphic plugin is going to
-//be disposed. 		After that, it calls to the template method end where the driver
-//can 		perform any specific cleanup.
+// template method 		videoFinalizing to notify that the graphic
+// plugin is going to be disposed. 		After that, it calls to the
+// template method end where the driver can 		perform any specific
+// cleanup.
 //
-/////////////////////////////////////////////////////////////////////////////
 
 #ifndef _GAME_DRIVER_H_
 #define _GAME_DRIVER_H_
@@ -54,15 +57,15 @@ class IPalette;     // defined in palette.h
 class InputPort;    // defined in InputPort.h
 
 class GameDriver {
-  // types
 public:
+  // types
   typedef std::vector<GameDataEntity *> GameDataEntities;
   typedef std::vector<GfxEncoding *> GfxEncodings;
   typedef std::vector<GfxElement *> GfxElements;
   typedef std::vector<InputPort *> InputPorts;
 
-  // fields
 protected:
+  // fields
   std::string _driverName;
   std::string _fullName;
   VideoInfo _videoInfo;
@@ -80,7 +83,6 @@ protected:
 
   std::string _errorMsg;
 
-  // methods
 public:
   // getters
   const VideoInfo *getVideoInfo() const { return &_videoInfo; }
@@ -105,6 +107,10 @@ public:
 
   virtual void runSync() = 0;
   virtual void runAsync() = 0;
+
+  virtual void runTick() = 0;
+  virtual void initGame() = 0;
+
   virtual void render(IDrawPlugin *dp) = 0;
   virtual void showGameLogic(IDrawPlugin *dp) {}
 

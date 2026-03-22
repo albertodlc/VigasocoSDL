@@ -5,7 +5,6 @@
 #include "AbadiaDriver.h"
 #include "GameDataEntity.h"
 #include "GameDriver.h"
-#include "GfxData.h"
 #include "IAudioPlugin.h"
 #include "ICriticalSection.h"
 #include "IDrawPlugin.h"
@@ -24,17 +23,14 @@
 
 using namespace Abadia;
 
-/////////////////////////////////////////////////////////////////////////////
 // initialization and cleanup
-/////////////////////////////////////////////////////////////////////////////
-
 AbadiaDriver::AbadiaDriver()
     : GameDriver("abadia", "La abadia del crimen", 300) {
   _videoInfo.width = 640;
   _videoInfo.height = 400;
   _videoInfo.visibleArea = Rect(_videoInfo.width, _videoInfo.height);
-  _videoInfo.colors =
-      32; // 16 del juego + 16 para mostrar información interna del juego
+  // 16 del juego + 16 para mostrar información interna del juego
+  _videoInfo.colors = 32;
   _videoInfo.colors = 256; // TODO: PRUEBAS VGA
   _videoInfo.refreshRate = 50;
 
@@ -53,10 +49,7 @@ AbadiaDriver::AbadiaDriver()
 
 AbadiaDriver::~AbadiaDriver() {}
 
-/////////////////////////////////////////////////////////////////////////////
 // creates the necessary file info, graphics specifications and inputs
-/////////////////////////////////////////////////////////////////////////////
-
 void AbadiaDriver::createGameDataEntities() {
   // el código y los gráficos están mezclados en la imagen
   GameDataEntity *roms = new GameDataEntity(MIXED, "Code + Graphics + Sound");
@@ -272,10 +265,7 @@ void AbadiaDriver::audioInitialized(IAudioPlugin *ap) {
   }
 }
 
-/////////////////////////////////////////////////////////////////////////////
 // template method overrides to customize cleanup
-/////////////////////////////////////////////////////////////////////////////
-
 void AbadiaDriver::videoFinalizing(IDrawPlugin *dp) {}
 
 void AbadiaDriver::audioFinalizing(IAudioPlugin *ap) {}
@@ -297,10 +287,7 @@ void AbadiaDriver::end() {
   delete[] romsPtr;
 }
 
-/////////////////////////////////////////////////////////////////////////////
 // run and refresh methods
-/////////////////////////////////////////////////////////////////////////////
-
 void AbadiaDriver::runSync() {
   if (!_abadiaGame->pausa) {
     // incrementa el contador de la interrupción
@@ -342,10 +329,7 @@ void AbadiaDriver::render(IDrawPlugin *dp) {
   cs->leave();
 }
 
-/////////////////////////////////////////////////////////////////////////////
 // display internal game information
-/////////////////////////////////////////////////////////////////////////////
-
 void AbadiaDriver::showGameLogic(IDrawPlugin *dp) {
   // actualiza el modo de información
   if (theInputHandler->hasBeenPressed(FUNCTION_5)) {
@@ -353,3 +337,7 @@ void AbadiaDriver::showGameLogic(IDrawPlugin *dp) {
     _abadiaGame->cambioModoInformacion = true;
   }
 }
+
+void AbadiaDriver::initGame() { _abadiaGame->init(); }
+
+void AbadiaDriver::runTick() { _abadiaGame->tick(); }

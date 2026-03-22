@@ -280,10 +280,7 @@ void CPC6128::markAllPixelsDirty() {
   memset(DirtyPixels, 0xFF, sizeof(DirtyPixels));
 }
 
-/////////////////////////////////////////////////////////////////////////////
-// helper methods
-/////////////////////////////////////////////////////////////////////////////
-
+// ! helper methods
 // fill a rectangle
 void CPC6128::fillRect(int x, int y, int width, int height, int color) {
   int xLimit = width + x - 1;

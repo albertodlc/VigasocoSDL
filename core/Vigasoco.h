@@ -67,6 +67,7 @@ public:
   IDrawPlugin *getDrawPlugin() const { return _drawPlugin; }
   IAudioPlugin *getAudioPlugin() const { return _audioPlugin; }
   InputHandler *getInputHandler() const { return _inputHandler; }
+  IThread *getAsyncThread() const { return _asyncThread; }
   ITimer *getTimer() const { return _timer; }
   TimingHandler *getTimingHandler() const { return _timingHandler; }
   FontManager *getFontManager() const { return _fontManager; }

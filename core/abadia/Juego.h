@@ -1,7 +1,7 @@
 // Juego.h
 //
 //		Clase principal del juego. Almacena el estado y las entidades
-//del juego.
+// del juego.
 //
 
 #ifndef _ABADIA_JUEGO_H_
@@ -30,6 +30,24 @@ class Puerta;       // definido en Puerta.h
 class Sprite;       // definido en Sprite.h
 
 #define elJuego Juego::getSingletonPtr()
+
+// Game states
+enum class GameState {
+  PRESENTING,
+  MAIN_MENU,
+  LANGUAGE_MENU,
+  LOAD_MENU,
+  SAVE_MENU,
+  HELP_MENU,
+  KEYBOARD_MENU,
+  OPTIONS_MENU,
+  CAMERA_MENU,
+  TUTORIAL_MENU,
+  INTRO,
+  INIT_GAME,
+  PLAYING,
+  GAME_OVER
+};
 
 class Juego : public Singleton<Juego> {
   // constantes
@@ -91,28 +109,13 @@ public:
 
   // métodos
 private:
+  void transitionTo(GameState newState);
+  GameState _state = GameState::PRESENTING;
+  int _stateTimer = 0; // general purpose counter for states that need timing
   MainMenu *_mainMenu;
+
   bool cargar(int slot);
   void save(int slot);
-
-  // TODO sacar todo lo relativo a menus
-  // a una clase para menu y no ensuciar la clase Juego
-  void pintaMenuCargar(int seleccionado, bool efecto = false);
-  bool menuCargar(void);
-  void pintaMenuGrabar(int seleccionado, bool efecto = false);
-  bool menuGrabar(void);
-  // void pintaMenuIntroduccion(int seleccionado); //NO SE USA
-  bool menuIntroduccion(void);
-  void pintaMenuTeclado(int seleccionado);
-  bool menuTeclado(void);
-  void pintaMenuCamaras(int seleccionado);
-  bool menuCamaras(void);
-  void pintaMenuMejoras(int seleccionado);
-  bool menuMejoras(void);
-  void pintaMenuTutorial(int seleccionado, bool efecto = false);
-  bool menuTutorial(void);
-  void pintaMenuAyuda(int seleccionado, bool efecto = false);
-  bool menuAyuda(void);
 
   bool menu(void);
 
@@ -121,16 +124,36 @@ private:
   bool compruebaMenu(void);
   void ReiniciaPantalla(void);
 
+  void tickPresenting();
+  void tickMenu();
+  void tickIntro();
+  void tickInitGame();
+  void tickPlaying();
+  void tickGameOver();
+  void tickMainMenu();
+  void tickLanguageMenu();
+  void tickLoadMenu();
+  void tickSaveMenu();
+  void tickHelpMenu();
+  void tickKeyboardMenu();
+  void tickOptionsMenu();
+  void tickCameraMenu();
+  void tickTutorialMenu();
+
 public:
+  // inicialización y limpieza
+  Juego(UINT8 *romData, CPC6128 *cpc);
+  ~Juego();
+
   void muestraFinal();
   void limpiaAreaJuego(int color);
 
   // bucle principal del juego
   void run();
 
-  // inicialización y limpieza
-  Juego(UINT8 *romData, CPC6128 *cpc);
-  ~Juego();
+  // new single-threaded approach
+  void init(); // one-time initialization
+  void tick(); // one frame of game logic
 
 protected:
   void muestraPresentacion();

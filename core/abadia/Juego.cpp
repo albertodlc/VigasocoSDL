@@ -5,8 +5,6 @@
 #include <string>
 
 #include "../IAudioPlugin.h"
-#include "../IPalette.h"
-#include "../InputHandler.h"
 #include "../TimingHandler.h"
 #include "../Vigasoco.h"
 #include "../systems/cpc6128.h"
@@ -19,6 +17,7 @@
 #include "Controles.h"
 #include "GestorFrases.h"
 #include "Guillermo.h"
+#include "IThread.h"
 #include "InfoJuego.h"
 #include "Jorge.h"
 #include "Juego.h"
@@ -31,7 +30,6 @@
 #include "Paleta.h"
 #include "Pergamino.h"
 #include "Personaje.h"
-#include "PersonajeConIA.h"
 #include "Puerta.h"
 #include "RejillaPantalla.h"
 #include "Serializar.h"
@@ -189,6 +187,7 @@ bool Juego::menu() { return _mainMenu->process(); }
  *
  */
 void Juego::run() {
+  // ! START - ONE-TIME INIT
   // obtiene los recursos para el juego
   // FIXME
   timer = VigasocoMain->getTimingHandler();
@@ -248,6 +247,8 @@ void Juego::run() {
   // porque se esta liando bastante
   logica->inicia();
 
+  IThread *thread = VigasocoMain->getAsyncThread();
+
   // menu, para permitir cambiar el idioma al empezar y ver el pergamino inicial
   // en tu idioma
   if (menu())
@@ -259,9 +260,14 @@ void Juego::run() {
   // limpia el área que ocupa el marcador
   marcador->limpiaAreaMarcador();
 
+  // ! END - ONE-TIME INIT
+
+  // ! START - TICKS
   // aquí ya se ha completado la inicialización de datos para el juego
   // ahora realiza la inicialización para poder empezar a jugar una partida
   while (true) {
+    if (thread->shouldStop())
+      return;
 
     // inicia la lógica del juego
     logica->inicia();
@@ -271,6 +277,9 @@ void Juego::run() {
 
     // el bucle principal del juego empieza aquí
     while (true) {
+      if (thread->shouldStop())
+        return;
+
       // actualiza el estado de los controles
       controles->actualizaEstado();
 
@@ -375,6 +384,11 @@ void Juego::run() {
 
       // espera un poco para actualizar el estado del juego
       while (contadorInterrupcion < 0x24) {
+        if (thread->shouldStop())
+          return;
+        if (!timer)
+          return;
+
         timer->sleep(5);
       }
 
@@ -386,6 +400,197 @@ void Juego::run() {
       contadorInterrupcion = 0;
     }
   }
+
+  // ! END - TICKS
+}
+
+void Juego::init() {
+  timer = VigasocoMain->getTimingHandler();
+  controles->init(VigasocoMain->getInputHandler());
+  audio_plugin = VigasocoMain->getAudioPlugin();
+
+  creaEntidadesJuego();
+  generaGraficosFlipeados();
+  motor->personaje = personajes[0];
+  infoJuego->inicia();
+  logica->despHabitacionEspejo();
+  logica->inicia();
+
+  _state = GameState::PRESENTING;
+  _stateTimer = 0;
+}
+
+void Juego::tick() {
+
+  switch (_state) {
+  case GameState::PRESENTING:
+    tickPresenting();
+    break;
+  case GameState::MAIN_MENU:
+    tickMainMenu();
+    break;
+  case GameState::LANGUAGE_MENU:
+    tickLanguageMenu();
+    break;
+  case GameState::LOAD_MENU:
+    tickLoadMenu();
+    break;
+  case GameState::SAVE_MENU:
+    tickSaveMenu();
+    break;
+  case GameState::HELP_MENU:
+    tickHelpMenu();
+    break;
+  case GameState::KEYBOARD_MENU:
+    tickKeyboardMenu();
+    break;
+  case GameState::OPTIONS_MENU:
+    tickOptionsMenu();
+    break;
+  case GameState::CAMERA_MENU:
+    tickCameraMenu();
+    break;
+  case GameState::TUTORIAL_MENU:
+    tickTutorialMenu();
+    break;
+  case GameState::INTRO:
+    tickIntro();
+    break;
+  case GameState::INIT_GAME:
+    tickInitGame();
+    break;
+  case GameState::PLAYING:
+    tickPlaying();
+    break;
+  case GameState::GAME_OVER:
+    tickGameOver();
+    break;
+  }
+}
+
+// ! GAME STATES
+void Juego::tickPresenting() {
+  if (_stateTimer == 0) {
+    paleta->setIntroPalette(); // ← add this — set palette first
+
+    UINT8 *romsVGA = &roms[0x24000 - 1 - 0x4000];
+    cpc6128->showVGAScreen(romsVGA + 0x1ADF0);
+    cpc6128->markAllPixelsDirty();
+  }
+  _stateTimer++;
+  if (_stateTimer > 180) { // ~5 seconds at 36 ticks/sec
+    marcador->limpiaAreaMarcador();
+    transitionTo(GameState::MAIN_MENU);
+  }
+}
+
+void Juego::tickMainMenu() {
+  if (_mainMenu->tickMainMenu()) {
+    // menu done — check which option was selected
+    int pulsado = _mainMenu->getLastPulsado();
+    fprintf(stderr, "Juego::tickMainMenu: pulsado=%d\n", pulsado);
+    _mainMenu->resetState();
+
+    switch (pulsado) {
+    case 0:
+      transitionTo(GameState::LANGUAGE_MENU);
+      break;
+    case 1:
+      transitionTo(GameState::LOAD_MENU);
+      break;
+    case 2:
+      transitionTo(GameState::SAVE_MENU);
+      break;
+    case 4:
+      transitionTo(GameState::HELP_MENU);
+      break;
+    case 5:
+      transitionTo(GameState::TUTORIAL_MENU);
+      break;
+    case 6:
+      transitionTo(GameState::INIT_GAME);
+      break; // restart
+    case 8:
+      transitionTo(GameState::INTRO);
+      break; // play
+    default:
+      break;
+    }
+  }
+}
+
+void Juego::tickLanguageMenu() {
+  if (_mainMenu->tickLanguageMenu()) {
+    _mainMenu->resetState();
+    transitionTo(GameState::MAIN_MENU);
+  }
+}
+
+void Juego::tickLoadMenu() {
+  if (_mainMenu->tickLoadMenu()) {
+    _mainMenu->resetState();
+    transitionTo(GameState::INIT_GAME);
+  }
+}
+
+void Juego::tickSaveMenu() {
+  if (_mainMenu->tickSaveMenu()) {
+    _mainMenu->resetState();
+    transitionTo(GameState::MAIN_MENU);
+  }
+}
+
+void Juego::tickHelpMenu() {
+  if (_mainMenu->tickHelpMenu()) {
+    _mainMenu->resetState();
+    transitionTo(GameState::MAIN_MENU);
+  }
+}
+
+void Juego::tickIntro() {
+  if (_mainMenu->tickIntro()) {
+    _mainMenu->resetState();
+    marcador->limpiaAreaMarcador();
+    transitionTo(GameState::INIT_GAME);
+  }
+}
+
+void Juego::tickInitGame() {
+  logica->inicia();
+  ReiniciaPantalla();
+  transitionTo(GameState::PLAYING);
+}
+
+void Juego::tickGameOver() {
+  muestraPantallaFinInvestigacion();
+  logica->inicia();
+  ReiniciaPantalla();
+  transitionTo(GameState::PLAYING);
+}
+
+void Juego::tickKeyboardMenu() {
+  // TODO STUB
+}
+
+void Juego::tickOptionsMenu() {
+  // TODO STUB
+}
+
+void Juego::tickCameraMenu() {
+  // TODO STUB
+}
+
+void Juego::tickTutorialMenu() {
+  // TODO STUB
+}
+
+void Juego::tickPlaying() {
+  // TODO STUB
+}
+
+void Juego::transitionTo(GameState newState) {
+  _state = newState;
+  _stateTimer = 0;
 }
 
 // limpia el área de juego de color que se le pasa y los bordes de negro
@@ -792,8 +997,8 @@ void Juego::muestraPresentacion() {
   UINT8 *romsVGA = &roms[0x24000 - 1 - 0x4000];
   cpc6128->showVGAScreen(romsVGA + 0x1ADF0);
 
-  // espera 5 segundos
-  timer->sleep(5000);
+  // Muestra la imagen de carga durante 5 segundos
+  // timer->sleep(5000);
 }
 
 // muestra el pergamino de presentación

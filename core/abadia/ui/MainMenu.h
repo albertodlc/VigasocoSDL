@@ -33,7 +33,33 @@ public:
   bool processTutorialMenu();
   bool processHelpMenu();
 
+  // NEW — tick-based, called once per frame
+  // returns true when the state is complete
+  bool tickMainMenu();
+  bool tickLanguageMenu();
+  bool tickLoadMenu();
+  bool tickSaveMenu();
+  bool tickHelpMenu();
+  bool tickKeyboardMenu();
+  bool tickOptionsMenu();
+  bool tickCameraMenu();
+  bool tickTutorialMenu();
+  bool tickIntro();
+
+  // getters && setters
+  // result of last menu operation
+  bool getLastResult() const { return _lastResult; }
+  int getLastPulsado() const { return _pulsado; }
+
+  // reset state when entering a new menu
+  void resetState();
+
 private:
+  bool _initialized = false;
+  bool _lastResult = false;
+  int _selected = 8;
+  int _pulsado = -1;
+  bool _salir = false;
   int _language;
 
   // This is the "storage slot" that stays alive as long as the class exists

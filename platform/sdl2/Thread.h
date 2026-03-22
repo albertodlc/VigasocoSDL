@@ -2,7 +2,6 @@
 //
 //	Class that encapsulates a SDL thread
 //
-/////////////////////////////////////////////////////////////////////////////
 
 #ifndef _SDL_THREAD_H_
 #define _SDL_THREAD_H_
@@ -30,7 +29,8 @@ public:
   virtual ~SDLThread();
 
   // IThread interface
-  virtual bool start();
+  virtual bool start(char *threadName);
+  virtual void stop();
   virtual void end();
   virtual void pause();
   virtual void resume();

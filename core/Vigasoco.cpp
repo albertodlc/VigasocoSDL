@@ -7,7 +7,6 @@
 #include "IAudioPlugin.h"
 #include "IDrawPlugin.h"
 #include "IPalette.h"
-#include "IThread.h"
 #include "InputHandler.h"
 #include "TimingHandler.h"
 #include <cmath>
@@ -29,7 +28,7 @@ Vigasoco::Vigasoco() {
   _inputHandler = 0;
   _timingHandler = 0;
   _timer = 0;
-  _asyncThread = 0;
+  // _asyncThread = 0;
   _fontManager = 0;
 
   _numFrames = 0;
@@ -166,14 +165,6 @@ bool Vigasoco::init(std::string name) {
   // notify the driver that the drawPlugin has been initialized
   _driver->audioInitialized(_audioPlugin);
 
-  // creates the async thread
-  createAsyncThread();
-
-  if (!_asyncThread) {
-    _errorMsg = "createAsyncThread() failed";
-    return false;
-  }
-
   // calls template method to perform specific actions after initialization has
   // been completed
   initCompleted();
@@ -199,11 +190,6 @@ void Vigasoco::end() {
   }
   // calls template method to stop and deallocate the audio plugin
   destroyAudioPlugin();
-
-  // stops and deallocates the async thread
-  if (_asyncThread) {
-    destroyAsyncThread();
-  }
 
   // stops and deallocates the timing handler
   if (_timingHandler) {
@@ -276,45 +262,40 @@ void Vigasoco::initFrame() { _numFrames++; }
  *
  */
 void Vigasoco::mainLoop() {
-  // start async game logic
-  _asyncThread->start();
+  bool gameInitialized = false;
 
-  // main sync loop
   while (true) {
-    // call template method to process any platform specific events
-    if (processExitEvents()) {
-      // if we've received the quit message, exit
-
+    if (processExitEvents())
       return;
-    }
 
-    // waits if necessary before processing this interrupt
     _timingHandler->waitThisInterrupt();
 
     bool processVideo = _timingHandler->processVideoThisInterrupt();
     bool processLogic = _timingHandler->processLogicThisInterrupt();
 
-    // if we have to process game logic
+    // process game logic
     if (processLogic) {
-      // execute sync game logic
-      _driver->runSync();
+      // game start
+      if (!gameInitialized) {
+        _driver->initGame();
+        gameInitialized = true;
+      }
+      // after game start
+      else {
+        _driver->runSync();
+        _driver->runTick();
+      }
     }
 
-    // if we have to process video
+    // render logic to screen
     if (processVideo) {
-      // calls template method to notify of the start of a frame
       initFrame();
-
-      // process inputs
       _inputHandler->process();
-
-      // change core state if necessary
       processCoreInputs();
 
       bool skipVideo = _timingHandler->skipVideoThisInterrupt();
 
       if (!skipVideo) {
-        // render game screen
         _driver->render(_drawPlugin);
         _driver->showGameLogic(_drawPlugin);
       }
@@ -322,15 +303,12 @@ void Vigasoco::mainLoop() {
       showFPS(skipVideo);
 
       if (!skipVideo) {
-        // render game screen to our screen
         _drawPlugin->render(_timingHandler->isThrottling());
       }
 
-      // call template method to notify the end of a frame
       endFrame();
     }
 
-    // end this interrupt processing
     _timingHandler->endThisInterrupt();
   }
 }

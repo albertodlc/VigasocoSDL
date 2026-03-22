@@ -9,6 +9,269 @@ MainMenu::MainMenu(int language, Abadia::Pergamino *pergamino,
       _gameLogic(gameLogic), _inputController(inputController),
       _marcador(marcador), _cpc6128(cpc6128), _timer(timer) {}
 
+void MainMenu::resetState() {
+  _initialized = false;
+  _lastResult = false;
+  _selected = 0;
+  _pulsado = -1;
+  _salir = false;
+}
+
+/**
+ * @brief Initial menu logic
+ *
+ * @return true
+ * @return false
+ */
+bool MainMenu::tickMainMenu() {
+  // first tick — render menu
+  if (!_initialized) {
+    renderMenu(_selected, true);
+    _initialized = true;
+    return false;
+  }
+
+  _pulsado = -1;
+  _inputController->actualizaEstado();
+
+  if (_inputController->seHaPulsado(P1_DOWN)) {
+    _selected++;
+    if (_selected == 9)
+      _selected = 0;
+    renderMenu(_selected);
+  }
+
+  if (_inputController->seHaPulsado(P1_UP)) {
+    _selected--;
+    if (_selected == -1)
+      _selected = 8;
+    renderMenu(_selected);
+  }
+
+  if (_inputController->seHaPulsado(P1_BUTTON1) ||
+      _inputController->seHaPulsado(KEYBOARD_INTRO)) {
+    _pulsado = _selected;
+  }
+
+  if (_inputController->seHaPulsado(KEYBOARD_0) || _pulsado == 0) {
+    // → transition to LANGUAGE_MENU
+    _lastResult = false;
+    _salir = true;
+    _pulsado = 0;
+  } else if (_inputController->seHaPulsado(KEYBOARD_1) || _pulsado == 1) {
+    // → transition to LOAD_MENU
+    _lastResult = false;
+    _salir = true;
+    _pulsado = 1;
+  } else if (_inputController->seHaPulsado(KEYBOARD_2) || _pulsado == 2) {
+    // → transition to SAVE_MENU
+    _lastResult = false;
+    _salir = true;
+    _pulsado = 2;
+  } else if (_inputController->seHaPulsado(KEYBOARD_4) || _pulsado == 4) {
+    // → transition to HELP_MENU
+    _lastResult = false;
+    _salir = true;
+    _pulsado = 4;
+  } else if (_inputController->seHaPulsado(KEYBOARD_5) || _pulsado == 5) {
+    // → transition to TUTORIAL_MENU
+    _lastResult = false;
+    _salir = true;
+    _pulsado = 5;
+  } else if (_inputController->seHaPulsado(KEYBOARD_6) || _pulsado == 6) {
+    // → PLAY (restart)
+    _lastResult = true;
+    _salir = true;
+    _pulsado = 6;
+  } else if (_inputController->seHaPulsado(KEYBOARD_8) || _pulsado == 8) {
+    // → PLAY
+    _lastResult = false;
+    _salir = true;
+    _pulsado = 8;
+  }
+
+  return _salir;
+}
+
+bool MainMenu::tickLanguageMenu() {
+  if (!_initialized) {
+    renderLanguageMenu(_selected, true);
+    _initialized = true;
+    return false;
+  }
+
+  _inputController->actualizaEstado();
+
+  if (_inputController->seHaPulsado(P1_DOWN)) {
+    _selected++;
+    if (_selected == 8)
+      _selected = 0;
+    renderLanguageMenu(_selected);
+  }
+  if (_inputController->seHaPulsado(P1_UP)) {
+    _selected--;
+    if (_selected == -1)
+      _selected = 7;
+    renderLanguageMenu(_selected);
+  }
+
+  // With explicit checks — safer and avoids the cast
+  if (_inputController->seHaPulsado(KEYBOARD_0) || _pulsado == 0) {
+    _language = 0;
+    _salir = true;
+  } else if (_inputController->seHaPulsado(KEYBOARD_1) || _pulsado == 1) {
+    _language = 1;
+    _salir = true;
+  } else if (_inputController->seHaPulsado(KEYBOARD_2) || _pulsado == 2) {
+    _language = 2;
+    _salir = true;
+  } else if (_inputController->seHaPulsado(KEYBOARD_3) || _pulsado == 3) {
+    _language = 3;
+    _salir = true;
+  } else if (_inputController->seHaPulsado(KEYBOARD_4) || _pulsado == 4) {
+    _language = 4;
+    _salir = true;
+  } else if (_inputController->seHaPulsado(KEYBOARD_5) || _pulsado == 5) {
+    _language = 5;
+    _salir = true;
+  } else if (_inputController->seHaPulsado(KEYBOARD_6) || _pulsado == 6) {
+    _language = 6;
+    _salir = true;
+  } else if (_inputController->seHaPulsado(KEYBOARD_7) || _pulsado == 7) {
+    _language = 7;
+    _salir = true;
+  }
+
+  return _salir;
+}
+
+bool MainMenu::tickLoadMenu() {
+  if (!_initialized) {
+    clearMenuArea(0);
+    renderLoadMenu(_selected, true);
+    _initialized = true;
+    return false;
+  }
+
+  _inputController->actualizaEstado();
+
+  if (_inputController->seHaPulsado(P1_DOWN)) {
+    _selected++;
+    if (_selected == 8)
+      _selected = 0;
+    renderLoadMenu(_selected);
+  }
+  if (_inputController->seHaPulsado(P1_UP)) {
+    _selected--;
+    if (_selected == -1)
+      _selected = 7;
+    renderLoadMenu(_selected);
+  }
+
+  if (_inputController->seHaPulsado(P1_BUTTON1) ||
+      _inputController->seHaPulsado(KEYBOARD_INTRO)) {
+    _pulsado = _selected;
+    _salir = true;
+  }
+  if (_inputController->seHaPulsado(KEYBOARD_7) || _pulsado == 7) {
+    _salir = true;
+  }
+
+  return _salir;
+}
+
+bool MainMenu::tickSaveMenu() {
+  if (!_initialized) {
+    clearMenuArea(0);
+    renderRecordingMenu(_selected, true);
+    _initialized = true;
+    return false;
+  }
+
+  _inputController->actualizaEstado();
+
+  if (_inputController->seHaPulsado(P1_DOWN)) {
+    _selected++;
+    if (_selected == 8)
+      _selected = 0;
+    renderRecordingMenu(_selected);
+  }
+  if (_inputController->seHaPulsado(P1_UP)) {
+    _selected--;
+    if (_selected == -1)
+      _selected = 7;
+    renderRecordingMenu(_selected);
+  }
+
+  if (_inputController->seHaPulsado(P1_BUTTON1) ||
+      _inputController->seHaPulsado(KEYBOARD_INTRO)) {
+    _pulsado = _selected;
+    _salir = true;
+  }
+  if (_inputController->seHaPulsado(KEYBOARD_7) || _pulsado == 7) {
+    _salir = true;
+  }
+
+  return _salir;
+}
+
+bool MainMenu::tickHelpMenu() {
+  if (!_initialized) {
+    clearMenuArea(0);
+    renderHelpMenu(_selected, true);
+    _initialized = true;
+    return false;
+  }
+
+  _inputController->actualizaEstado();
+
+  if (_inputController->seHaPulsado(P1_DOWN)) {
+    _selected++;
+    if (_selected == 6)
+      _selected = 0;
+    renderHelpMenu(_selected);
+  }
+  if (_inputController->seHaPulsado(P1_UP)) {
+    _selected--;
+    if (_selected == -1)
+      _selected = 5;
+    renderHelpMenu(_selected);
+  }
+
+  if (_inputController->seHaPulsado(P1_BUTTON1) ||
+      _inputController->seHaPulsado(KEYBOARD_INTRO)) {
+    _pulsado = _selected;
+  }
+
+  if (_inputController->seHaPulsado(KEYBOARD_5) || _pulsado == 5) {
+    _salir = true;
+  }
+
+  return _salir;
+}
+
+bool MainMenu::tickIntro() {
+  if (!_initialized) {
+    clearMenuArea(0);
+    _pergamino->muestraTexto(
+        Abadia::Pergamino::pergaminoIntroduccion[_language]);
+    _initialized = true;
+    _salir = false;
+    return false;
+  }
+
+  _inputController->actualizaEstado();
+
+  // wait for player to PRESS a button to exit
+  if (_inputController->seHaPulsado(P1_BUTTON1) ||
+      _inputController->seHaPulsado(KEYBOARD_INTRO) ||
+      _inputController->seHaPulsado(KEYBOARD_SPACE)) {
+    _salir = true;
+  }
+
+  return _salir;
+}
+
 bool MainMenu::process(int seleccionado) {
   int pulsado = -1;
   bool salir = false;
@@ -19,7 +282,6 @@ bool MainMenu::process(int seleccionado) {
   // Gestionamos las actualizaciones posteriores
   while (!salir) {
     pulsado = -1;
-    _timer->sleep(100);
     _inputController->actualizaEstado();
 
     // ! DOWN ARROW
@@ -110,7 +372,6 @@ bool MainMenu::processLanguageMenu(int seleccionado) {
 
   while (!salir) {
     pulsado = -1;
-    _timer->sleep(100);
     _inputController->actualizaEstado();
 
     if (_inputController->estaSiendoPulsado(P1_DOWN)) {
@@ -209,7 +470,6 @@ void MainMenu::renderMenu(int selected, bool enableEffect) {
     for (int i = 0; i < 9; i++) {
       _marcador->imprimeFrase(textos[_language][i], x, 16 + (i * 16), 4, 0);
     }
-    _timer->sleep(50);
   }
 
   _cpc6128->fillMode1Rect(8, 0, 88, 160, 0);
@@ -263,7 +523,6 @@ void MainMenu::renderLanguageMenu(int selected, bool enableEffect) {
     for (int i = 0; i < 8; i++) {
       _marcador->imprimeFrase(textos[_language][i], x, 32 + (i * 16), 4, 0);
     }
-    _timer->sleep(50);
   }
 
   _cpc6128->fillMode1Rect(8, 0, 88, 160, 0);
@@ -291,7 +550,6 @@ bool MainMenu::processLoadMenu(int seleccionado) {
 
   while (!salir) {
     pulsado = -1;
-    _timer->sleep(100);
     _inputController->actualizaEstado();
 
     if (_inputController->estaSiendoPulsado(P1_DOWN)) {
@@ -388,7 +646,6 @@ void MainMenu::renderRecordingMenu(int seleccionado, bool enableEffect) {
     for (int i = 0; i < 8; i++) {
       _marcador->imprimeFrase(textos[_language][i], x, 32 + (i * 16), 4, 0);
     }
-    _timer->sleep(50);
   }
   _cpc6128->fillMode1Rect(8, 0, 88, 160, 0);
   for (int i = 0; i < 8; i++) {
@@ -411,7 +668,6 @@ bool MainMenu::processRecordingMenu() {
 
   while (salir == false) {
     pulsado = -1;
-    _timer->sleep(100);
     _inputController->actualizaEstado();
 
     if (_inputController->estaSiendoPulsado(P1_DOWN)) {
@@ -477,7 +733,6 @@ bool MainMenu::processIntro() {
 
   while (espera) {
     _inputController->actualizaEstado();
-    _timer->sleep(1);
     espera = _inputController->estaSiendoPulsado(P1_BUTTON1);
   }
 
@@ -488,7 +743,6 @@ bool MainMenu::processIntro() {
   while (_inputController->estaSiendoPulsado(P1_BUTTON1) ||
          _inputController->estaSiendoPulsado(KEYBOARD_INTRO)) {
     _inputController->actualizaEstado();
-    _timer->sleep(50);
   }
 
   return false;
@@ -596,7 +850,6 @@ bool MainMenu::processKeyboardMenu() {
 
   while (espera) {
     _inputController->actualizaEstado();
-    _timer->sleep(1);
     espera = _inputController->estaSiendoPulsado(P1_BUTTON1);
   }
 
@@ -608,7 +861,6 @@ bool MainMenu::processKeyboardMenu() {
 
   bool salir = false;
   while (salir == false) {
-    _timer->sleep(100);
     _inputController->actualizaEstado();
 
     if (_inputController->estaSiendoPulsado(P1_BUTTON1) ||
@@ -718,7 +970,6 @@ bool MainMenu::processOptionsMenu() {
 
   bool salir = false;
   while (salir == false) {
-    _timer->sleep(100);
     _inputController->actualizaEstado();
 
     if (_inputController->estaSiendoPulsado(P1_BUTTON1) ||
@@ -789,7 +1040,6 @@ bool MainMenu::processCameraMenu() {
 
   bool salir = false;
   while (salir == false) {
-    _timer->sleep(100);
     _inputController->actualizaEstado();
 
     if (_inputController->estaSiendoPulsado(P1_BUTTON1) ||
@@ -801,7 +1051,6 @@ bool MainMenu::processCameraMenu() {
   while (_inputController->estaSiendoPulsado(P1_BUTTON1) ||
          _inputController->estaSiendoPulsado(KEYBOARD_INTRO)) {
     _inputController->actualizaEstado();
-    _timer->sleep(50);
   }
 
   return false;
@@ -879,7 +1128,6 @@ void MainMenu::renderTutorialMenu(int seleccionado, bool enableEffect) {
     for (int i = 0; i < 8; i++) {
       _marcador->imprimeFrase(textos[_language][i], x, 32 + (i * 16), 4, 0);
     }
-    _timer->sleep(50);
   }
   _cpc6128->fillMode1Rect(8, 0, 88, 160, 0);
 
@@ -903,7 +1151,6 @@ bool MainMenu::processTutorialMenu() {
   bool salir = false;
   while (salir == false) {
     pulsado = -1;
-    _timer->sleep(100);
     _inputController->actualizaEstado();
 
     if (_inputController->estaSiendoPulsado(P1_BUTTON1) ||
@@ -926,7 +1173,6 @@ bool MainMenu::processHelpMenu() {
   bool salir = false;
   while (salir == false) {
     pulsado = -1;
-    _timer->sleep(100);
     _inputController->actualizaEstado();
 
     if (_inputController->estaSiendoPulsado(P1_DOWN)) {
@@ -971,7 +1217,6 @@ bool MainMenu::processHelpMenu() {
 
       while (espera) {
         _inputController->actualizaEstado();
-        _timer->sleep(1);
         espera = _inputController->estaSiendoPulsado(P1_BUTTON1);
       }
 
@@ -1034,7 +1279,6 @@ void MainMenu::renderHelpMenu(int seleccionado, bool enableEffect) {
     for (int i = 0; i < 8; i++) {
       _marcador->imprimeFrase(textos[_language][i], x, 32 + (i * 16), 4, 0);
     }
-    _timer->sleep(50);
   }
 
   _cpc6128->fillMode1Rect(8, 0, 88, 160, 0);
@@ -1090,6 +1334,8 @@ void MainMenu::ReiniciaPantalla() {
 // TODO: Mover s Clase
 bool MainMenu::cargar(int slot) {
   // TODO: Stub class
+
+  return false;
 }
 
 void MainMenu::save(int slot) {
