@@ -46,17 +46,15 @@ Berengario::Berengario(SpriteMonje *spr) : Monje(spr) {
 
 Berengario::~Berengario() {}
 
-/////////////////////////////////////////////////////////////////////////////
 // comportamiento
-/////////////////////////////////////////////////////////////////////////////
 
 // Los estados en los que puede estar berengario son:
 //		0x00 -> estado incial
 //		0x01 -> estado en vísperas para ir a la iglesia
 //		0x04 -> estado en el que está pendiente de que guillermo deje el
-//pergamino 		0x05 -> estado en el que va a avisar al abad de que guillermo ha
-//cogido el pergamino 		0x06 -> en este estado se ha colocado la capucha y se va a
-//por el libro y después a la celda de severino
+// pergamino 		0x05 -> estado en el que va a avisar al abad de que
+// guillermo ha cogido el pergamino 		0x06 -> en este estado se ha
+// colocado la capucha y se va a por el libro y después a la celda de severino
 void Berengario::piensa() {
   // si no está vivo, sale
   if (!estaVivo) {

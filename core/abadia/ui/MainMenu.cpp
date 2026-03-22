@@ -272,6 +272,82 @@ bool MainMenu::tickIntro() {
   return _salir;
 }
 
+bool MainMenu::tickKeyboardMenu() {
+  if (!_initialized) {
+    clearMenuArea(0);
+    _pergamino->muestraTexto(Abadia::Pergamino::pergaminoManejo[_language]);
+    _initialized = true;
+    return false;
+  }
+
+  _inputController->actualizaEstado();
+
+  if (_inputController->seHaPulsado(P1_BUTTON1) ||
+      _inputController->seHaPulsado(KEYBOARD_INTRO) ||
+      _inputController->seHaPulsado(KEYBOARD_SPACE)) {
+    _salir = true;
+  }
+
+  return _salir;
+}
+
+bool MainMenu::tickOptionsMenu() {
+  if (!_initialized) {
+    clearMenuArea(0);
+    renderOptionsMenu(0);
+    _initialized = true;
+    return false;
+  }
+
+  _inputController->actualizaEstado();
+
+  if (_inputController->seHaPulsado(P1_BUTTON1) ||
+      _inputController->seHaPulsado(KEYBOARD_INTRO) ||
+      _inputController->seHaPulsado(KEYBOARD_SPACE)) {
+    _salir = true;
+  }
+
+  return _salir;
+}
+
+bool MainMenu::tickCameraMenu() {
+  if (!_initialized) {
+    clearMenuArea(0);
+    renderCameraMenu(0);
+    _initialized = true;
+    return false;
+  }
+
+  _inputController->actualizaEstado();
+
+  if (_inputController->seHaPulsado(P1_BUTTON1) ||
+      _inputController->seHaPulsado(KEYBOARD_INTRO) ||
+      _inputController->seHaPulsado(KEYBOARD_SPACE)) {
+    _salir = true;
+  }
+
+  return _salir;
+}
+
+bool MainMenu::tickTutorialMenu() {
+  if (!_initialized) {
+    clearMenuArea(0);
+    renderTutorialMenu(0, true);
+    _initialized = true;
+    return false;
+  }
+
+  _inputController->actualizaEstado();
+
+  if (_inputController->seHaPulsado(P1_BUTTON1) ||
+      _inputController->seHaPulsado(KEYBOARD_INTRO) ||
+      _inputController->seHaPulsado(KEYBOARD_SPACE)) {
+    _salir = true;
+  }
+
+  return _salir;
+}
+
 bool MainMenu::process(int seleccionado) {
   int pulsado = -1;
   bool salir = false;

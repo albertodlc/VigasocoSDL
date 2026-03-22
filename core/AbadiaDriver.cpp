@@ -298,8 +298,6 @@ void AbadiaDriver::runSync() {
   }
 }
 
-void AbadiaDriver::runAsync() { _abadiaGame->run(); }
-
 void AbadiaDriver::render(IDrawPlugin *dp) {
   // TODO: VGA
   // El codigo si usasemos los graficos originales

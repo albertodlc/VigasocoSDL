@@ -79,7 +79,6 @@ public:
   virtual ~AbadiaDriver();
 
   virtual void runSync();
-  virtual void runAsync();
 
   virtual void runTick();
   virtual void initGame();

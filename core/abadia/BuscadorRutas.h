@@ -1,9 +1,8 @@
 // BuscadorRutas.h
 //
 //	Clase que contiene los métodos para buscar rutas y caminos entre
-//posiciones
+// posiciones
 //
-/////////////////////////////////////////////////////////////////////////////
 
 #ifndef _BUSCADOR_RUTAS_H_
 #define _BUSCADOR_RUTAS_H_

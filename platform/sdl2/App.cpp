@@ -5,13 +5,8 @@
 #include "App.h"
 #include "CriticalSection.h"
 #include "FileLoader.h"
-#include "FontManager.h"
-#include "IDrawPlugin.h"
-#include "IInputPlugin.h"
 #include "InputHandler.h"
 #include "Palette.h"
-#include "Thread.h"
-#include "TimingHandler.h"
 
 #ifdef RDTSC
 #include "RDTSCTimer.h"
@@ -77,8 +72,6 @@ void VigasocoSDL::createTimer() {
 #endif
 }
 
-void VigasocoSDL::createAsyncThread() { _asyncThread = new SDLThread(); }
-
 void VigasocoSDL::initCompleted() {
   // Load font for text rendering
   SDLDrawPlugin8bpp *plugin = dynamic_cast<SDLDrawPlugin8bpp *>(_drawPlugin);
@@ -97,11 +90,6 @@ void VigasocoSDL::initCompleted() {
 /////////////////////////////////////////////////////////////////////////////
 // destruction template methods
 /////////////////////////////////////////////////////////////////////////////
-
-void VigasocoSDL::destroyAsyncThread() {
-  delete _asyncThread;
-  _asyncThread = 0;
-}
 
 void VigasocoSDL::destroyTimer() {
   delete _timer;

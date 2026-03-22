@@ -35,11 +35,9 @@ protected:
   virtual void createAudioPlugin();
   virtual void addCustomInputPlugins();
   virtual void createTimer();
-  virtual void createAsyncThread();
   virtual void initCompleted();
 
   // template methods overrides — destruction
-  virtual void destroyAsyncThread();
   virtual void destroyTimer();
   virtual void removeCustomInputPlugins();
   virtual void destroyDrawPlugin();

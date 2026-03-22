@@ -106,7 +106,6 @@ public:
   virtual void end() = 0;
 
   virtual void runSync() = 0;
-  virtual void runAsync() = 0;
 
   virtual void runTick() = 0;
   virtual void initGame() = 0;

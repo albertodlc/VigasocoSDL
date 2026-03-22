@@ -87,11 +87,9 @@ protected:
   virtual void createAudioPlugin() = 0;
   virtual void addCustomInputPlugins() = 0;
   virtual void createTimer() = 0;
-  virtual void createAsyncThread() = 0;
   virtual void initCompleted() {}
 
   // destruction
-  virtual void destroyAsyncThread() = 0;
   virtual void destroyTimer() = 0;
   virtual void removeCustomInputPlugins() = 0;
   virtual void destroyDrawPlugin() = 0;

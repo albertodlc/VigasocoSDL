@@ -9,6 +9,7 @@
 
 #include "../Types.h"
 #include "../util/Singleton.h"
+#include "game/GameStateMachine.h"
 #include "ui/MainMenu.h"
 
 class CPC6128;       // definido en CPC6128.h
@@ -30,24 +31,6 @@ class Puerta;       // definido en Puerta.h
 class Sprite;       // definido en Sprite.h
 
 #define elJuego Juego::getSingletonPtr()
-
-// Game states
-enum class GameState {
-  PRESENTING,
-  MAIN_MENU,
-  LANGUAGE_MENU,
-  LOAD_MENU,
-  SAVE_MENU,
-  HELP_MENU,
-  KEYBOARD_MENU,
-  OPTIONS_MENU,
-  CAMERA_MENU,
-  TUTORIAL_MENU,
-  INTRO,
-  INIT_GAME,
-  PLAYING,
-  GAME_OVER
-};
 
 class Juego : public Singleton<Juego> {
   // constantes
@@ -77,11 +60,13 @@ public:
   // o no
   // TODO: Poner metodos get para no dar acceso directo y que lo
   // pueda cambiar por error desde otro lado
-  bool GraficosCPC; // Indica si se usan los datos del archivo GraficosCPC
-                    // o del GraficosVGA
-                    // En ambos casos, son de 8 bits
-  CPC6128 *
-      cpc6128; // objeto de ayuda para realizar operaciones gráficas del cpc6128
+
+  // Indica si se usan los datos del archivo GraficosCPC
+  // o del GraficosVGA
+  // En ambos casos, son de 8 bits
+  bool GraficosCPC;
+  // objeto de ayuda para realizar operaciones gráficas del cpc6128
+  CPC6128 *cpc6128;
   IAudioPlugin *audio_plugin; // puntero al plugin de audio
   Controles *controles;       // acceso a los controles del juego
   Paleta *paleta;             // paleta del juego
@@ -109,53 +94,24 @@ public:
 
   // métodos
 private:
-  void transitionTo(GameState newState);
-  GameState _state = GameState::PRESENTING;
-  int _stateTimer = 0; // general purpose counter for states that need timing
-  MainMenu *_mainMenu;
-
-  bool cargar(int slot);
-  void save(int slot);
-
-  bool menu(void);
-
-  void cambioCPC_VGA(void);
-  void compruebaCambioCPC_VGA(void);
-  bool compruebaMenu(void);
-  void ReiniciaPantalla(void);
-
-  void tickPresenting();
-  void tickMenu();
-  void tickIntro();
-  void tickInitGame();
-  void tickPlaying();
-  void tickGameOver();
-  void tickMainMenu();
-  void tickLanguageMenu();
-  void tickLoadMenu();
-  void tickSaveMenu();
-  void tickHelpMenu();
-  void tickKeyboardMenu();
-  void tickOptionsMenu();
-  void tickCameraMenu();
-  void tickTutorialMenu();
+  MainMenu *_mainMenu = nullptr;
+  GameStateMachine *_stateMachine = nullptr;
 
 public:
   // inicialización y limpieza
   Juego(UINT8 *romData, CPC6128 *cpc);
   ~Juego();
 
-  void muestraFinal();
-  void limpiaAreaJuego(int color);
+  bool cargar(int slot);
+  void save(int slot);
 
-  // bucle principal del juego
-  void run();
+  bool menu(void);
 
-  // new single-threaded approach
-  void init(); // one-time initialization
-  void tick(); // one frame of game logic
-
-protected:
+  // TODO: Poner donde toque
+  void cambioCPC_VGA(void);
+  void compruebaCambioCPC_VGA(void);
+  bool compruebaMenu(void);
+  void ReiniciaPantalla(void);
   void muestraPresentacion();
   void muestraIntroduccion();
   bool muestraPantallaFinInvestigacion();
@@ -172,6 +128,18 @@ protected:
   void compruebaPausa();
   bool compruebaLoad();
   void compruebaSave();
+
+  void muestraFinal();
+  void limpiaAreaJuego(int color);
+
+  // getters && setters
+  Abadia::Paleta *getPaleta() { return paleta; }
+
+  // new single-threaded approach
+  void init(); // one-time initialization
+  void tick(); // one frame of game logic
+
+protected:
 };
 
 } // namespace Abadia
