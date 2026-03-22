@@ -7,33 +7,31 @@
 #ifndef _RDTSC_TIMER_H_
 #define _RDTSC_TIMER_H_
 
-
 #include "ITimer.h"
 
-class RDTSCTimer : public ITimer
-{
-// fields
+class RDTSCTimer : public ITimer {
+  // fields
 protected:
-	INT64 _ticksPerSecond;
-	INT64 _ticksPerMilliSecond;
+  INT64 _ticksPerSecond;
+  INT64 _ticksPerMilliSecond;
 
-// methods
+  // methods
 public:
-	virtual bool init();
-	virtual void end();
+  virtual bool init();
+  virtual void end();
 
-	virtual INT64 getTime();
-	virtual INT64 getTicksPerSecond();
-	virtual void sleep(UINT32 milliseconds);
+  virtual INT64 getTime();
+  virtual INT64 getTicksPerSecond();
+  virtual void sleep(UINT32 milliseconds);
 
-	// initialization and cleanup
-	RDTSCTimer();
-	virtual ~RDTSCTimer();
+  // initialization and cleanup
+  RDTSCTimer();
+  virtual ~RDTSCTimer();
 
-// helper methods
+  // helper methods
 protected:
-	INT64 calcTicksPerSecond();
-	bool supportsRDTSC();
+  INT64 calcTicksPerSecond();
+  bool supportsRDTSC();
 };
 
-#endif	// _RDTSC_TIMER_H_
+#endif // _RDTSC_TIMER_H_

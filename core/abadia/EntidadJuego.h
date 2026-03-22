@@ -9,46 +9,43 @@
 
 namespace Abadia {
 
-
 enum Orientacion {
-	DERECHA = 0,			// hacia +x
-	ABAJO = 1,				// hacia -y
-	IZQUIERDA = 2,			// hacia -x
-	ARRIBA = 3				// hacia +y
+  DERECHA = 0,   // hacia +x
+  ABAJO = 1,     // hacia -y
+  IZQUIERDA = 2, // hacia -x
+  ARRIBA = 3     // hacia +y
 };
 
-class PosicionJuego
-{
+class PosicionJuego {
 public:
-	int orientacion;		// orientación de la posición en el mundo
-	int posX;				// posición x en coordenadas de mundo
-	int posY;				// posición y en coordenadas de mundo
-	int altura;				// altura en coordenadas de mundo
+  int orientacion; // orientación de la posición en el mundo
+  int posX;        // posición x en coordenadas de mundo
+  int posY;        // posición y en coordenadas de mundo
+  int altura;      // altura en coordenadas de mundo
 
-	PosicionJuego();
-	PosicionJuego(int ori, int pX, int pY, int alt);
-	virtual ~PosicionJuego();
+  PosicionJuego();
+  PosicionJuego(int ori, int pX, int pY, int alt);
+  virtual ~PosicionJuego();
 };
 
-class Sprite;				// definido en Sprite.h
+class Sprite; // definido en Sprite.h
 
-class EntidadJuego : public PosicionJuego
-{
-// campos
+class EntidadJuego : public PosicionJuego {
+  // campos
 public:
-	Sprite *sprite;			// sprite asociado a la entidad
+  Sprite *sprite; // sprite asociado a la entidad
 
-// métodos:
+  // métodos:
 public:
-	virtual void cambioPantalla(){}
-	virtual void notificaVisibleEnPantalla(int posXPant, int posYPant, int profundidad) = 0;
+  virtual void cambioPantalla() {}
+  virtual void notificaVisibleEnPantalla(int posXPant, int posYPant,
+                                         int profundidad) = 0;
 
-	// inicialización y limpieza
-	EntidadJuego(Sprite *spr);
-	virtual ~EntidadJuego();
+  // inicialización y limpieza
+  EntidadJuego(Sprite *spr);
+  virtual ~EntidadJuego();
 };
 
+} // namespace Abadia
 
-}
-
-#endif	// _ENTIDAD_JUEGO_H_
+#endif // _ENTIDAD_JUEGO_H_

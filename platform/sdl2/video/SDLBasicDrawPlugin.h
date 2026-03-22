@@ -9,122 +9,120 @@
 
 #include "SDLDrawPlugin.h"
 
-class DEFAULT
-{
-	public:
-		static const Uint32 flags;
-		static const int bpp;
+class DEFAULT {
+public:
+  static const Uint32 flags;
+  static const int bpp;
 };
 
-template<typename T>
-class SDLBasicDrawPlugin : public SDLDrawPlugin
-{
-	protected:
-		SDL_Rect *SDLRects;
-		bool **updated_rect;
-		int xrects,yrects;
+template <typename T> class SDLBasicDrawPlugin : public SDLDrawPlugin {
+protected:
+  SDL_Rect *SDLRects;
+  bool **updated_rect;
+  int xrects, yrects;
 
-		SDL_Window* window;
-		SDL_Renderer* renderer;
-		SDL_Texture* texture;
-		SDL_PixelFormat* pixelFormat;
-		int _pitch;
-		Uint32* myPixels; 
-		
-		bool _isInitialized;
-		UINT32 _flags;
-		int _bpp;
-		T *_palette;
-	private:
-		IPalette *_originalPalette;
-	public:
-		SDLBasicDrawPlugin() { 
-			window = NULL;
-			renderer=NULL;
-			texture=NULL;
-			pixelFormat=NULL;
-			_pitch=-1;
-			myPixels=NULL;
-			_isInitialized=false;
-			_flags = DEFAULT::flags;
-			_bpp = DEFAULT::bpp ;
-			_palette = NULL;
-			_originalPalette=NULL; 
-		}
-		virtual ~SDLBasicDrawPlugin(){ }
-		virtual bool init(const VideoInfo *vi, IPalette *pal);
-		virtual void end(void);
-		// getters
-		virtual bool isInitialized() const { return _isInitialized; };
-		virtual bool isFullScreen() const  { return false; };
+  SDL_Window *window;
+  SDL_Renderer *renderer;
+  SDL_Texture *texture;
+  SDL_PixelFormat *pixelFormat;
+  int _pitch;
+  Uint32 *myPixels;
 
-		// bitmap creation/destruction
-		virtual int createBitmap(int width, int height)  { return 0; };
-		virtual void destroyBitmap(int bitmap)  {};
+  bool _isInitialized;
+  UINT32 _flags;
+  int _bpp;
+  T *_palette;
 
-		// bitmap methods
-		virtual void setActiveBitmap(int bitmap) {};
-		virtual void compose(int bitmap, int mode, int attr) {};
-		virtual void getDimensions(int &width, int &height) const {};
+private:
+  IPalette *_originalPalette;
 
-		// clipping methods
-		virtual const Rect *getClipArea() const {};
-		virtual void setClipArea(int x, int y, int width, int height) {};
-		virtual void setNoClip() {};
+public:
+  SDLBasicDrawPlugin() {
+    window = NULL;
+    renderer = NULL;
+    texture = NULL;
+    pixelFormat = NULL;
+    _pitch = -1;
+    myPixels = NULL;
+    _isInitialized = false;
+    _flags = DEFAULT::flags;
+    _bpp = DEFAULT::bpp;
+    _palette = NULL;
+    _originalPalette = NULL;
+  }
+  virtual ~SDLBasicDrawPlugin() {}
+  virtual bool init(const VideoInfo *vi, IPalette *pal);
+  virtual void end(void);
+  // getters
+  virtual bool isInitialized() const { return _isInitialized; };
+  virtual bool isFullScreen() const { return false; };
 
-		// drawing methods
-		virtual void render(bool throttle);
-		virtual void setPixel(int x, int y, int color);
+  // bitmap creation/destruction
+  virtual int createBitmap(int width, int height) { return 0; };
+  virtual void destroyBitmap(int bitmap) {};
 
-		virtual void drawLine(int x0, int y0, int x1, int y1, int color) {};
-		virtual void drawRect(Rect *rect, int color) {};
-		virtual void drawRect(int x0, int y0, int width, int height, int color) {};
-		virtual void drawCircle(int x, int y, int radius, int color) {};
-		virtual void drawEllipse(int x, int y, int a, int b, int color) {};
+  // bitmap methods
+  virtual void setActiveBitmap(int bitmap) {};
+  virtual void compose(int bitmap, int mode, int attr) {};
+  virtual void getDimensions(int &width, int &height) const {};
 
-		virtual void fillRect(Rect *rect, int color) {};
-		virtual void fillRect(int x0, int y0, int width, int height, int color) {};
-		virtual void fillCircle(int x, int y, int radius, int color) {};
-		virtual void fillEllipse(int x, int y, int a, int b, int color) {};
+  // clipping methods
+  virtual const Rect *getClipArea() const {};
+  virtual void setClipArea(int x, int y, int width, int height) {};
+  virtual void setNoClip() {};
 
-		virtual void drawGfx(GfxElement *gfx, int code, int color, int x, int y, int attr) {};
-		virtual void drawGfxClip(GfxElement *gfx, int code, int color, int x, int y, int attr) {};
-		virtual void drawGfxTrans(GfxElement *gfx, int code, int color, int x, int y, int attr, int transData) {};
-		virtual void drawGfxClipTrans(GfxElement *gfx, int code, int color, int x, int y, int attr, int transData) {};
+  // drawing methods
+  virtual void render(bool throttle);
+  virtual void setPixel(int x, int y, int color);
 
-		virtual void renderOverlays() {}
+  virtual void drawLine(int x0, int y0, int x1, int y1, int color) {};
+  virtual void drawRect(Rect *rect, int color) {};
+  virtual void drawRect(int x0, int y0, int width, int height, int color) {};
+  virtual void drawCircle(int x, int y, int radius, int color) {};
+  virtual void drawEllipse(int x, int y, int a, int b, int color) {};
 
-		// access to custom plugin properties
-		virtual const std::string *getProperties(int *num) const {};
-		virtual const int *getPropertiesType() const {};
-		virtual void setProperty(std::string prop, int data) {
-			std::string ToggleFullScreen("ToggleFullScreen");
-			std::string ToggleFullScreenDesktop("ToggleFullScreenDesktop");
-			std::string ToggleWindowedMode("ToggleWindowedMode");
-			if ( prop == ToggleFullScreen )
-			{
-				SDL_SetWindowFullscreen(window,SDL_WINDOW_FULLSCREEN);
-			} else 
-			if ( prop == ToggleFullScreenDesktop )
-			{
-				SDL_SetWindowFullscreen(window,SDL_WINDOW_FULLSCREEN_DESKTOP);
-			} else
-			if ( prop == ToggleWindowedMode)
-			{
-				SDL_SetWindowFullscreen(window,0);
-			}
-		};
-		virtual void setProperty(std::string prop, int index, int data) {};
-		virtual int getProperty(std::string prop) const {};
-		virtual int getProperty(std::string prop, int index) const {};
+  virtual void fillRect(Rect *rect, int color) {};
+  virtual void fillRect(int x0, int y0, int width, int height, int color) {};
+  virtual void fillCircle(int x, int y, int radius, int color) {};
+  virtual void fillEllipse(int x, int y, int a, int b, int color) {};
 
-	protected:
-		// palette changed notification
-		virtual void update(IPalette *palette, int data);
-		virtual void updateFullPalette(IPalette *palette);
+  virtual void drawGfx(GfxElement *gfx, int code, int color, int x, int y,
+                       int attr) {};
+  virtual void drawGfxClip(GfxElement *gfx, int code, int color, int x, int y,
+                           int attr) {};
+  virtual void drawGfxTrans(GfxElement *gfx, int code, int color, int x, int y,
+                            int attr, int transData) {};
+  virtual void drawGfxClipTrans(GfxElement *gfx, int code, int color, int x,
+                                int y, int attr, int transData) {};
 
-		//
-		virtual void updateRect(int x,int y);
+  virtual void renderOverlays() {}
+
+  // access to custom plugin properties
+  virtual const std::string *getProperties(int *num) const {};
+  virtual const int *getPropertiesType() const {};
+  virtual void setProperty(std::string prop, int data) {
+    std::string ToggleFullScreen("ToggleFullScreen");
+    std::string ToggleFullScreenDesktop("ToggleFullScreenDesktop");
+    std::string ToggleWindowedMode("ToggleWindowedMode");
+    if (prop == ToggleFullScreen) {
+      SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
+    } else if (prop == ToggleFullScreenDesktop) {
+      SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+    } else if (prop == ToggleWindowedMode) {
+      SDL_SetWindowFullscreen(window, 0);
+    }
+  };
+  virtual void setProperty(std::string prop, int index, int data) {};
+  virtual int getProperty(std::string prop) const {};
+  virtual int getProperty(std::string prop, int index) const {};
+
+protected:
+  // palette changed notification
+  virtual void update(IPalette *palette, int data);
+  virtual void updateFullPalette(IPalette *palette);
+
+  //
+  virtual void updateRect(int x, int y);
 };
 
 #include "SDLBasicDrawPluginTemplates.cpp"

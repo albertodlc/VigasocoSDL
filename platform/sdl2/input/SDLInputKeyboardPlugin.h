@@ -10,45 +10,44 @@
 #include "IInputPlugin.h"
 #include <SDL2/SDL.h>
 
-class SDLInputKeyboardPlugin: public IInputPlugin
-{
-// fields
+class SDLInputKeyboardPlugin : public IInputPlugin {
+  // fields
 protected:
-	static const std::string g_properties[];
-	static const unsigned int g_paramTypes[];
+  static const std::string g_properties[];
+  static const unsigned int g_paramTypes[];
 
-	UINT8 _keys[256];							// keys state
+  UINT8 _keys[256]; // keys state
 
-	static SDL_Scancode g_keyMapping[END_OF_INPUTS];
+  static SDL_Scancode g_keyMapping[END_OF_INPUTS];
 
 #if defined _EE || defined _PS3
-	SDL_Joystick *joy;
+  SDL_Joystick *joy;
 #endif
-	std::string _errorMsg;						// error message
+  std::string _errorMsg; // error message
 
-// methods
+  // methods
 public:
-	// initialization and cleanup
-	SDLInputKeyboardPlugin();
-	virtual ~SDLInputKeyboardPlugin();
-	virtual bool init();
-	virtual void end();
+  // initialization and cleanup
+  SDLInputKeyboardPlugin();
+  virtual ~SDLInputKeyboardPlugin();
+  virtual bool init();
+  virtual void end();
 
-	virtual void acquire();
-	virtual void unAcquire();
+  virtual void acquire();
+  virtual void unAcquire();
 
-	virtual void process(int *inputs);
+  virtual void process(int *inputs);
 
-	// custom properties
-	virtual const std::string *getProperties(int *num) const;
-	virtual const unsigned int *getPropertiesType() const;
-	virtual void setProperty(std::string prop, int data);
-	virtual void setProperty(std::string prop, int index, int data);
-	virtual int getProperty(std::string prop) const;
-	virtual int getProperty(std::string prop, int index) const;
+  // custom properties
+  virtual const std::string *getProperties(int *num) const;
+  virtual const unsigned int *getPropertiesType() const;
+  virtual void setProperty(std::string prop, int data);
+  virtual void setProperty(std::string prop, int index, int data);
+  virtual int getProperty(std::string prop) const;
+  virtual int getProperty(std::string prop, int index) const;
 
 protected:
-	void initRemapTable();
+  void initRemapTable();
 };
 
-#endif	// _DIRECT_INPUT_KEYBOARD_PLUGIN_H_
+#endif // _DIRECT_INPUT_KEYBOARD_PLUGIN_H_

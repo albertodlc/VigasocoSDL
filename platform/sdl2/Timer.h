@@ -9,29 +9,28 @@
 
 #include "ITimer.h"
 
-class SDLTimer : public ITimer
-{
-// fields
+class SDLTimer : public ITimer {
+  // fields
 protected:
-	INT64 _ticksPerSecond;
-	INT64 _ticksPerMilliSecond;
+  INT64 _ticksPerSecond;
+  INT64 _ticksPerMilliSecond;
 
-// methods
+  // methods
 public:
-	virtual bool init();
-	virtual void end();
+  virtual bool init();
+  virtual void end();
 
-	virtual INT64 getTime();
-	virtual INT64 getTicksPerSecond();
-	virtual void sleep(UINT32 milliseconds);
+  virtual INT64 getTime();
+  virtual INT64 getTicksPerSecond();
+  virtual void sleep(UINT32 milliseconds);
 
-	// initialization and cleanup
-	SDLTimer();
-	virtual ~SDLTimer();
+  // initialization and cleanup
+  SDLTimer();
+  virtual ~SDLTimer();
 
-// helper methods
+  // helper methods
 protected:
-	INT64 calcTicksPerSecond();
+  INT64 calcTicksPerSecond();
 };
 
-#endif	// _SDL_TIMER_H_
+#endif // _SDL_TIMER_H_

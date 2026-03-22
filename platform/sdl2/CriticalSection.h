@@ -7,27 +7,24 @@
 #ifndef _SDL_CRITICAL_SECTION_H_
 #define _SDL_CRITICAL_SECTION_H_
 
-
 #include "ICriticalSection.h"
 #include <SDL2/SDL.h>
 
-class SDLCriticalSection : public ICriticalSection
-{
-// fields
+class SDLCriticalSection : public ICriticalSection {
+  // fields
 protected:
-	SDL_mutex *cs;
-	
+  SDL_mutex *cs;
 
 public:
-	// initialization and cleanup
-	SDLCriticalSection();
-	virtual ~SDLCriticalSection();
+  // initialization and cleanup
+  SDLCriticalSection();
+  virtual ~SDLCriticalSection();
 
-	// ICriticalSection interface
-	virtual void init();
-	virtual void destroy();
-	virtual void enter();
-	virtual void leave();
+  // ICriticalSection interface
+  virtual void init();
+  virtual void destroy();
+  virtual void enter();
+  virtual void leave();
 };
 
-#endif	// _SDL_CRITICAL_SECTION_H_
+#endif // _SDL_CRITICAL_SECTION_H_

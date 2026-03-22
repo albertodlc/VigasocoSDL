@@ -8,34 +8,18 @@
 // initialization and cleanup
 /////////////////////////////////////////////////////////////////////////////
 
-SDLCriticalSection::SDLCriticalSection()
-{
-}
+SDLCriticalSection::SDLCriticalSection() {}
 
-SDLCriticalSection::~SDLCriticalSection()
-{
-}
+SDLCriticalSection::~SDLCriticalSection() {}
 
 /////////////////////////////////////////////////////////////////////////////
 // ICriticalSection interface
 /////////////////////////////////////////////////////////////////////////////
 
-void SDLCriticalSection::init()
-{
-	cs=SDL_CreateMutex();
-}
+void SDLCriticalSection::init() { cs = SDL_CreateMutex(); }
 
-void SDLCriticalSection::destroy()
-{
-	SDL_DestroyMutex(cs);
-}
+void SDLCriticalSection::destroy() { SDL_DestroyMutex(cs); }
 
-void SDLCriticalSection::enter()
-{
-	SDL_mutexP(cs);
-}
+void SDLCriticalSection::enter() { SDL_mutexP(cs); }
 
-void SDLCriticalSection::leave()
-{
-	SDL_mutexV(cs);
-}
+void SDLCriticalSection::leave() { SDL_mutexV(cs); }

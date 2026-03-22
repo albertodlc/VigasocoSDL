@@ -10,23 +10,17 @@
 // initialization and cleanup
 /////////////////////////////////////////////////////////////////////////////
 
-IThread::IThread()
-{
-	_isRunning = false;
-}
+IThread::IThread() { _isRunning = false; }
 
-IThread::~IThread()
-{
-}
+IThread::~IThread() {}
 
 /////////////////////////////////////////////////////////////////////////////
 // thread execution
 /////////////////////////////////////////////////////////////////////////////
 
-int IThread::run()
-{
-	GameDriver *gd = VigasocoMain->getDriver();
-	gd->runAsync();
+int IThread::run() {
+  GameDriver *gd = VigasocoMain->getDriver();
+  gd->runAsync();
 
-	return 0;
+  return 0;
 }

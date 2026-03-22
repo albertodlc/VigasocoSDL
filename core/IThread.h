@@ -5,28 +5,26 @@
 #ifndef _ITHREAD_H_
 #define _ITHREAD_H_
 
-
-class IThread
-{
+class IThread {
 protected:
-	bool _isRunning;
+  bool _isRunning;
 
 public:
-	virtual ~IThread();
+  virtual ~IThread();
 
-	// abstract methods
-	virtual bool start() = 0;
-	virtual int run();
-	virtual void end() = 0;
+  // abstract methods
+  virtual bool start() = 0;
+  virtual int run();
+  virtual void end() = 0;
 
-	virtual void pause() = 0;
-	virtual void resume() = 0;
+  virtual void pause() = 0;
+  virtual void resume() = 0;
 
-	// getters
-	bool isRunning(){ return _isRunning; }
+  // getters
+  bool isRunning() { return _isRunning; }
 
 protected:
-	IThread();
+  IThread();
 };
 
-#endif	// _ITHREAD_H_
+#endif // _ITHREAD_H_

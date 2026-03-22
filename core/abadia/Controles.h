@@ -7,7 +7,6 @@
 #ifndef _CONTROLES_H_
 #define _CONTROLES_H_
 
-
 #include "../InputHandler.h"
 #include "../util/Singleton.h"
 
@@ -15,29 +14,27 @@ namespace Abadia {
 
 #define losControles Controles::getSingletonPtr()
 
-class Controles : public Singleton<Controles>
-{
-// campos
+class Controles : public Singleton<Controles> {
+  // campos
 protected:
-	InputHandler *ih;							// manejador de los controles
+  InputHandler *ih; // manejador de los controles
 
-	int _controles[END_OF_INPUTS];				// datos sobre los controles
-	int _oldControles[END_OF_INPUTS];			// datos anteriores sobre los controles
+  int _controles[END_OF_INPUTS];    // datos sobre los controles
+  int _oldControles[END_OF_INPUTS]; // datos anteriores sobre los controles
 
-// métodos
+  // métodos
 public:
-	void init(InputHandler *input);
-	void actualizaEstado();
+  void init(InputHandler *input);
+  void actualizaEstado();
 
-	bool estaSiendoPulsado(Inputs input) const { return (_controles[input] > 0); }
-	bool seHaPulsado(Inputs input);
+  bool estaSiendoPulsado(Inputs input) const { return (_controles[input] > 0); }
+  bool seHaPulsado(Inputs input);
 
-	// inicialización y limpieza
-	Controles();
-	~Controles();
+  // inicialización y limpieza
+  Controles();
+  ~Controles();
 };
 
+} // namespace Abadia
 
-}
-
-#endif	// _CONTROLES_H_
+#endif // _CONTROLES_H_

@@ -8,8 +8,7 @@
 // notification
 /////////////////////////////////////////////////////////////////////////////
 
-void IPalette::notifyChange()
-{
-	// notify a full palette change
-	notify(-1);
+void IPalette::notifyChange() {
+  // notify a full palette change
+  notify(-1);
 }

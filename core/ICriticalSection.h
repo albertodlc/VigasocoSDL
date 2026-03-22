@@ -7,21 +7,19 @@
 #ifndef _ICRITICAL_SECTION_H_
 #define _ICRITICAL_SECTION_H_
 
-
-class ICriticalSection
-{
+class ICriticalSection {
 public:
-	virtual ~ICriticalSection();
+  virtual ~ICriticalSection();
 
-	// abstract methods
-	virtual void init() = 0;
-	virtual void destroy() = 0;
+  // abstract methods
+  virtual void init() = 0;
+  virtual void destroy() = 0;
 
-	virtual void enter() = 0;
-	virtual void leave() = 0;
+  virtual void enter() = 0;
+  virtual void leave() = 0;
 
 protected:
-	ICriticalSection();
+  ICriticalSection();
 };
 
-#endif	// _ICRITICAL_SECTION_H_
+#endif // _ICRITICAL_SECTION_H_

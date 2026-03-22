@@ -7,38 +7,36 @@
 #ifndef _SDL_THREAD_H_
 #define _SDL_THREAD_H_
 
-
 #include "IThread.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_thread.h>
 
-#ifdef __EMSCRIPTEN_PTHREADS__ 
+#ifdef __EMSCRIPTEN_PTHREADS__
 #include <pthread.h>
 #endif
 
-class SDLThread : public IThread
-{
-// fields
+class SDLThread : public IThread {
+  // fields
 protected:
-#ifdef __EMSCRIPTEN_PTHREADS__ 
-	pthread_t _handle;
+#ifdef __EMSCRIPTEN_PTHREADS__
+  pthread_t _handle;
 #else
-	SDL_Thread *_handle;
+  SDL_Thread *_handle;
 #endif
 
 public:
-	// initialization and cleanup
-	SDLThread();
-	virtual ~SDLThread();
+  // initialization and cleanup
+  SDLThread();
+  virtual ~SDLThread();
 
-	// IThread interface
-	virtual bool start();
-	virtual void end();
-	virtual void pause();
-	virtual void resume();
+  // IThread interface
+  virtual bool start();
+  virtual void end();
+  virtual void pause();
+  virtual void resume();
 
-	// helper method
-	static int ThreadProc(SDLThread *thread);
+  // helper method
+  static int ThreadProc(SDLThread *thread);
 };
 
-#endif	// _SDL_THREAD_H_
+#endif // _SDL_THREAD_H_

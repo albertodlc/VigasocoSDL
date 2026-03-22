@@ -7,32 +7,29 @@
 #ifndef _JORGE_H_
 #define _JORGE_H_
 
-
 #include "Monje.h"
 
 namespace Abadia {
 
-
-class Jorge : public Monje
-{
-// campos
+class Jorge : public Monje {
+  // campos
 public:
-	bool estaActivo;							// indica si el personaje está activo o no
-	int contadorHuida;							// contador usado para la huida
+  bool estaActivo;   // indica si el personaje está activo o no
+  int contadorHuida; // contador usado para la huida
 
 protected:
-	static PosicionJuego posicionesPredef[2];	// posiciones a las que puede ir el personaje según el estado
+  static PosicionJuego posicionesPredef[2]; // posiciones a las que puede ir el
+                                            // personaje según el estado
 
-// métodos
+  // métodos
 public:
-	virtual void piensa();
+  virtual void piensa();
 
-	// inicialización y limpieza
-	Jorge(SpriteMonje *spr);
-	virtual ~Jorge();
+  // inicialización y limpieza
+  Jorge(SpriteMonje *spr);
+  virtual ~Jorge();
 };
 
+} // namespace Abadia
 
-}
-
-#endif	// _JORGE_H_
+#endif // _JORGE_H_

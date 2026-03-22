@@ -7,45 +7,42 @@
 #ifndef _PUERTA_H_
 #define _PUERTA_H_
 
-
 #include "EntidadJuego.h"
-
 
 namespace Abadia {
 
-class Personaje;						// definido en Personaje.h
-class RejillaPantalla;					// definido en RejillaPantalla.h
+class Personaje;       // definido en Personaje.h
+class RejillaPantalla; // definido en RejillaPantalla.h
 
-class Puerta : public EntidadJuego
-{
-// campos
+class Puerta : public EntidadJuego {
+  // campos
 public:
-	int identificador;					// identificador de la puerta
-	bool estaAbierta;					// indica si la puerta está abierta
-	bool haciaDentro;					// indica si la puerta se abre hacia dentro o hacia fuera
-	bool estaFija;						// indica si la puerta se queda fija
-	bool hayQueRedibujar;				// indica si hay que redibujar la puerta
+  int identificador; // identificador de la puerta
+  bool estaAbierta;  // indica si la puerta está abierta
+  bool haciaDentro;  // indica si la puerta se abre hacia dentro o hacia fuera
+  bool estaFija;     // indica si la puerta se queda fija
+  bool hayQueRedibujar; // indica si hay que redibujar la puerta
 
 protected:
-	static int despOrientacion[4][12];
+  static int despOrientacion[4][12];
 
-// métodos
+  // métodos
 public:
-	virtual void notificaVisibleEnPantalla(int posXPant, int posYPant, int profundidad);
-	void compruebaAbrirCerrar(Personaje **personajes, int numPersonajes);
-	void marcaPosiciones(RejillaPantalla *rejilla, int valor);
+  virtual void notificaVisibleEnPantalla(int posXPant, int posYPant,
+                                         int profundidad);
+  void compruebaAbrirCerrar(Personaje **personajes, int numPersonajes);
+  void marcaPosiciones(RejillaPantalla *rejilla, int valor);
 
-	// inicialización y limpieza
-	Puerta(Sprite *spr);
-	virtual ~Puerta();
+  // inicialización y limpieza
+  Puerta(Sprite *spr);
+  virtual ~Puerta();
 
-// métodos de ayuda
+  // métodos de ayuda
 protected:
-	bool puedeAbrir(Personaje *pers);
-	bool accionesAbrirCerrar(bool abrir);
+  bool puedeAbrir(Personaje *pers);
+  bool accionesAbrirCerrar(bool abrir);
 };
 
+} // namespace Abadia
 
-}
-
-#endif	// _PUERTA_H_
+#endif // _PUERTA_H_

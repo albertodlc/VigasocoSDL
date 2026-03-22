@@ -7,40 +7,39 @@
 #ifndef _MALAQUIAS_H_
 #define _MALAQUIAS_H_
 
-#include <iosfwd>
 #include "Monje.h"
+#include <iosfwd>
 
 namespace Abadia {
 
-
-class Malaquias : public Monje
-{
-// campos
+class Malaquias : public Monje {
+  // campos
 public:
-	int estaMuerto;								// indica si el personaje está muerto o muriéndose
-	int estado2;								// guarda información extra sobre el estado del personaje
+  int estaMuerto; // indica si el personaje está muerto o muriéndose
+  int estado2;    // guarda información extra sobre el estado del personaje
 
 protected:
-	int contadorEnScriptorium;					// indica el tiempo que guillermo está sin salir del scriptorium
-	static PosicionJuego posicionesPredef[9];	// posiciones a las que puede ir el personaje según el estado
+  int contadorEnScriptorium; // indica el tiempo que guillermo está sin salir
+                             // del scriptorium
+  static PosicionJuego posicionesPredef[9]; // posiciones a las que puede ir el
+                                            // personaje según el estado
 
-// métodos
+  // métodos
 public:
-	virtual void piensa();
+  virtual void piensa();
 
-	// inicialización y limpieza
-	Malaquias(SpriteMonje *spr);
-	virtual ~Malaquias();
+  // inicialización y limpieza
+  Malaquias(SpriteMonje *spr);
+  virtual ~Malaquias();
 
-	// cargar/salvar
-	friend std::ofstream& operator<<(std::ofstream&,const Malaquias* const);
-	friend std::ifstream& operator>>(std::ifstream&,Malaquias* const);
+  // cargar/salvar
+  friend std::ofstream &operator<<(std::ofstream &, const Malaquias *const);
+  friend std::ifstream &operator>>(std::ifstream &, Malaquias *const);
 
 protected:
-	virtual void avanzaAnimacionOMueve();
+  virtual void avanzaAnimacionOMueve();
 };
 
+} // namespace Abadia
 
-}
-
-#endif	// _MALAQUIAS_H_
+#endif // _MALAQUIAS_H_

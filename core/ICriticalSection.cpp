@@ -8,10 +8,6 @@
 // initialization and cleanup
 /////////////////////////////////////////////////////////////////////////////
 
-ICriticalSection::ICriticalSection()
-{
-}
+ICriticalSection::ICriticalSection() {}
 
-ICriticalSection::~ICriticalSection()
-{
-}
+ICriticalSection::~ICriticalSection() {}

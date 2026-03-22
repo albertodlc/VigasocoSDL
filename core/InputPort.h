@@ -7,45 +7,39 @@
 #ifndef _INPUT_PORT_H_
 #define _INPUT_PORT_H_
 
-
 #include "Types.h"
 #include <vector>
 
-
-enum InputMode {
-	ACTIVE_HIGH,
-	ACTIVE_LOW
-};
+enum InputMode { ACTIVE_HIGH, ACTIVE_LOW };
 
 struct InputBit {
-	Inputs input;
-	InputMode mode;
+  Inputs input;
+  InputMode mode;
 };
 
-class InputPort
-{
-// types
+class InputPort {
+  // types
 public:
-	typedef std::vector<InputBit> InputBits;
+  typedef std::vector<InputBit> InputBits;
 
-// fields
+  // fields
 protected:
-	UINT32 _value;
-	InputBits _bits;
+  UINT32 _value;
+  InputBits _bits;
 
-// methods
+  // methods
 public:
-	// getters & setters
-	void addBit(int bit, Inputs input, InputMode mode);
-	InputBits *getBits() { return &_bits; }
-	UINT32 getValue() const { return _value; }
-	void setValue(UINT32 value) { _value = value; }
+  // getters & setters
+  void addBit(int bit, Inputs input, InputMode mode);
+  InputBits *getBits() { return &_bits; }
+  UINT32 getValue() const { return _value; }
+  void setValue(UINT32 value) { _value = value; }
 
-	void reset();
+  void reset();
 
-	// initialization and cleanup
-	InputPort(int numBits);
-	~InputPort();
+  // initialization and cleanup
+  InputPort(int numBits);
+  ~InputPort();
 };
 
-#endif	// _INPUT_PORT_H_
+#endif // _INPUT_PORT_H_

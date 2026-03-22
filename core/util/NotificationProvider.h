@@ -13,27 +13,24 @@
 #include "INotificationSuscriber.h"
 #include <list>
 
-
-template <typename T>
-class NotificationProvider
-{
-// types
+template <typename T> class NotificationProvider {
+  // types
 protected:
-	typedef std::list<INotificationSuscriber<T> *> Observers;
+  typedef std::list<INotificationSuscriber<T> *> Observers;
 
-// fields
+  // fields
 protected:
-	Observers _observers;
+  Observers _observers;
 
-// methods
+  // methods
 public:
-	NotificationProvider();
-	virtual ~NotificationProvider();
-	virtual void attach(INotificationSuscriber<T> *o);
-	virtual void detach(INotificationSuscriber<T> *o);
-	virtual void notify(int data);
+  NotificationProvider();
+  virtual ~NotificationProvider();
+  virtual void attach(INotificationSuscriber<T> *o);
+  virtual void detach(INotificationSuscriber<T> *o);
+  virtual void notify(int data);
 };
 
 #include "NotificationProvider.cpp"
 
-#endif	// _NOTIFICATION_PROVIDER_H_
+#endif // _NOTIFICATION_PROVIDER_H_

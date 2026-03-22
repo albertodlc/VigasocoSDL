@@ -1,49 +1,49 @@
 // FileLoader.h
 //
-//	Singleton class that loads game data entities. The class has a collection of
-//	loaders that can try to load the collection of files in a specific format
-//	(uncompressed, .zip, .rar, etc). The FileLoader also has multiple path support.
+//	Singleton class that loads game data entities. The class has a
+//collection of 	loaders that can try to load the collection of files in a
+//specific format 	(uncompressed, .zip, .rar, etc). The FileLoader also has
+//multiple path support.
 //
-//	By default, the only loader is the UncompressedLoader and the path is "roms".
+//	By default, the only loader is the UncompressedLoader and the path is
+//"roms".
 //
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef _FILE_LOADER_H_
 #define _FILE_LOADER_H_
 
-
-#include <list>
-#include "util/Singleton.h"
-#include <string>
 #include "Types.h"
+#include "util/Singleton.h"
+#include <list>
+#include <string>
 
-class GameDataEntity;	// defined in GameDataEntity.h
-class ILoader;			// defined in ILoader.h
+class GameDataEntity; // defined in GameDataEntity.h
+class ILoader;        // defined in ILoader.h
 
 #define theFileLoader FileLoader::getSingletonPtr()
 
-class FileLoader : public Singleton<FileLoader>
-{
-// types
+class FileLoader : public Singleton<FileLoader> {
+  // types
 protected:
-	typedef std::list<ILoader *> Loaders;
-	typedef std::list<std::string> Paths;
+  typedef std::list<ILoader *> Loaders;
+  typedef std::list<std::string> Paths;
 
-// fields
+  // fields
 protected:
-	Loaders _loaders;				// collection of loaders
-	Paths _paths;					// collection of paths to search the files
+  Loaders _loaders; // collection of loaders
+  Paths _paths;     // collection of paths to search the files
 
-// methods
+  // methods
 public:
-	FileLoader();
-	~FileLoader();
+  FileLoader();
+  ~FileLoader();
 
-	void addLoader(ILoader *l);
-	void removeLoader(ILoader *l);
-	void addPath(std::string path);
+  void addLoader(ILoader *l);
+  void removeLoader(ILoader *l);
+  void addPath(std::string path);
 
-	bool loadGameData(std::string game, GameDataEntity *gde);
+  bool loadGameData(std::string game, GameDataEntity *gde);
 };
 
-#endif	// _FILE_LOADER_H_
+#endif // _FILE_LOADER_H_

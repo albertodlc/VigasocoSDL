@@ -1,0 +1,15 @@
+{    
+    // Use clangd for formatting and completion
+    "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd",
+    "editor.formatOnSave": true,
+    
+    // Smooth UI for Error Lens
+    "errorLens.enabledDiagnosticLevels": ["error", "warning"],
+    "editor.insertSpaces": true,
+    "editor.tabSize": 4,
+    "editor.detectIndentation": false,
+    // This tells the C++ tools to respect your .clang-format file
+    "clangd.arguments": [
+        "--fallback-style=Google"
+    ]
+}

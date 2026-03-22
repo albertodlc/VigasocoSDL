@@ -6,73 +6,61 @@
 
 #include "Palette.h"
 
-
 /////////////////////////////////////////////////////////////////////////////
 // initialization and cleanup
 /////////////////////////////////////////////////////////////////////////////
 
-SDLPalette::SDLPalette()
-{
-	_palette = 0;
-	_colors = 0;
+SDLPalette::SDLPalette() {
+  _palette = 0;
+  _colors = 0;
 }
 
-SDLPalette::~SDLPalette()
-{
+SDLPalette::~SDLPalette() {}
+
+void SDLPalette::init(int colors) {
+  assert(_palette == 0);
+  _palette = new PaletteEntry[colors];
+  _colors = colors;
 }
 
-void SDLPalette::init(int colors)
-{
-	assert(_palette == 0);
-	_palette = new PaletteEntry[colors];
-	_colors = colors;
-}
-
-void SDLPalette::end()
-{
-	delete[] _palette;
-}
+void SDLPalette::end() { delete[] _palette; }
 
 /////////////////////////////////////////////////////////////////////////////
 // getters & setters
 /////////////////////////////////////////////////////////////////////////////
 
-void SDLPalette::setColor(int index, UINT8 r, UINT8 g, UINT8 b)
-{
-	assert((index >= 0) && (index < _colors));
+void SDLPalette::setColor(int index, UINT8 r, UINT8 g, UINT8 b) {
+  assert((index >= 0) && (index < _colors));
 
-	_palette[index].R = r;
-	_palette[index].G = g;
-	_palette[index].B = b;
-	_palette[index].alpha = 0xff;
+  _palette[index].R = r;
+  _palette[index].G = g;
+  _palette[index].B = b;
+  _palette[index].alpha = 0xff;
 
-	notify(index);
+  notify(index);
 }
 
-void SDLPalette::getColor(int index, UINT8 &r, UINT8 &g, UINT8 &b)
-{
-	assert((index >= 0) && (index < _colors));
+void SDLPalette::getColor(int index, UINT8 &r, UINT8 &g, UINT8 &b) {
+  assert((index >= 0) && (index < _colors));
 
-	r = _palette[index].R;
-	g = _palette[index].G;
-	b = _palette[index].B;
+  r = _palette[index].R;
+  g = _palette[index].G;
+  b = _palette[index].B;
 }
 
-void SDLPalette::setColor(int index, PaletteEntry pe)
-{
-	assert((index >= 0) && (index < _colors));
+void SDLPalette::setColor(int index, PaletteEntry pe) {
+  assert((index >= 0) && (index < _colors));
 
-	_palette[index].R = pe.R;
-	_palette[index].G = pe.G;
-	_palette[index].B = pe.B;
-	_palette[index].alpha = pe.alpha;
+  _palette[index].R = pe.R;
+  _palette[index].G = pe.G;
+  _palette[index].B = pe.B;
+  _palette[index].alpha = pe.alpha;
 
-	notify(index);
+  notify(index);
 }
 
-PaletteEntry SDLPalette::getColor(int index) const
-{
-	assert((index >= 0) && (index < _colors));
+PaletteEntry SDLPalette::getColor(int index) const {
+  assert((index >= 0) && (index < _colors));
 
-	return _palette[index];
+  return _palette[index];
 }

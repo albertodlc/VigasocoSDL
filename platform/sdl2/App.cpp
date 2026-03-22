@@ -3,15 +3,15 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "App.h"
-#include "Palette.h"
 #include "CriticalSection.h"
-#include "Thread.h"
 #include "FileLoader.h"
 #include "FontManager.h"
-#include "InputHandler.h"
-#include "TimingHandler.h"
 #include "IDrawPlugin.h"
 #include "IInputPlugin.h"
+#include "InputHandler.h"
+#include "Palette.h"
+#include "Thread.h"
+#include "TimingHandler.h"
 
 #ifdef RDTSC
 #include "RDTSCTimer.h"
@@ -20,9 +20,9 @@
 #endif
 
 // SDL2 platform implementations
-#include "video/SDLVideoPlugins.h"
 #include "audio/SDLAudioPlugin.h"
 #include "input/SDLInputKeyboardPlugin.h"
+#include "video/SDLVideoPlugins.h"
 
 #include <SDL2/SDL.h>
 
@@ -30,161 +30,129 @@
 // initialization and cleanup
 /////////////////////////////////////////////////////////////////////////////
 
-VigasocoSDL::VigasocoSDL(std::string game, Strings paths)
-{
-    _game = game;
-    _sPaths = paths;
+VigasocoSDL::VigasocoSDL(std::string game, Strings paths) {
+  _game = game;
+  _sPaths = paths;
 }
 
-VigasocoSDL::~VigasocoSDL()
-{
-}
+VigasocoSDL::~VigasocoSDL() {}
 
 /////////////////////////////////////////////////////////////////////////////
 // platform services
 /////////////////////////////////////////////////////////////////////////////
 
-ICriticalSection *VigasocoSDL::createCriticalSection()
-{
-    return new SDLCriticalSection();
+ICriticalSection *VigasocoSDL::createCriticalSection() {
+  return new SDLCriticalSection();
 }
 
 /////////////////////////////////////////////////////////////////////////////
 // construction template methods
 /////////////////////////////////////////////////////////////////////////////
 
-bool VigasocoSDL::platformSpecificInit()
-{
-    return true;
+bool VigasocoSDL::platformSpecificInit() { return true; }
+
+void VigasocoSDL::createPalette() { _palette = new SDLPalette(); }
+
+void VigasocoSDL::addCustomLoaders(FileLoader *fl) {
+  // add optional paths to the file loader
+  for (Strings::size_type i = 0; i < _sPaths.size(); i++) {
+    fl->addPath(_sPaths[i]);
+  }
 }
 
-void VigasocoSDL::createPalette()
-{
-    _palette = new SDLPalette();
+void VigasocoSDL::createDrawPlugin() { _drawPlugin = new SDLDrawPlugin8bpp(); }
+
+void VigasocoSDL::createAudioPlugin() { _audioPlugin = new SDLAudioPlugin(); }
+
+void VigasocoSDL::addCustomInputPlugins() {
+  SDLInputKeyboardPlugin *ip = new SDLInputKeyboardPlugin();
+  _inputHandler->addInputPlugin(ip);
 }
 
-void VigasocoSDL::addCustomLoaders(FileLoader *fl)
-{
-    // add optional paths to the file loader
-    for (Strings::size_type i = 0; i < _sPaths.size(); i++){
-        fl->addPath(_sPaths[i]);
-    }
-}
-
-void VigasocoSDL::createDrawPlugin()
-{
-    _drawPlugin = new SDLDrawPlugin8bpp();
-}
-
-void VigasocoSDL::createAudioPlugin()
-{
-    _audioPlugin = new SDLAudioPlugin();
-}
-
-void VigasocoSDL::addCustomInputPlugins()
-{
-    SDLInputKeyboardPlugin *ip = new SDLInputKeyboardPlugin();
-    _inputHandler->addInputPlugin(ip);
-}
-
-void VigasocoSDL::createTimer()
-{
+void VigasocoSDL::createTimer() {
 #ifdef RDTSC
-    _timer = new RDTSCTimer();
+  _timer = new RDTSCTimer();
 #else
-    _timer = new SDLTimer();
+  _timer = new SDLTimer();
 #endif
 }
 
-void VigasocoSDL::createAsyncThread()
-{
-    _asyncThread = new SDLThread();
-}
+void VigasocoSDL::createAsyncThread() { _asyncThread = new SDLThread(); }
 
-void VigasocoSDL::initCompleted()
-{
-    // Load font for text rendering
-    SDLDrawPlugin8bpp* plugin = dynamic_cast<SDLDrawPlugin8bpp*>(_drawPlugin);
-    if (plugin){
-        if (!plugin->loadFont("fonts/arial.ttf", 16)){
-            fprintf(stderr, "Failed to load font: %s\n", TTF_GetError());
-        }
+void VigasocoSDL::initCompleted() {
+  // Load font for text rendering
+  SDLDrawPlugin8bpp *plugin = dynamic_cast<SDLDrawPlugin8bpp *>(_drawPlugin);
+  if (plugin) {
+    if (!plugin->loadFont("fonts/arial.ttf", 16)) {
+      fprintf(stderr, "Failed to load font: %s\n", TTF_GetError());
     }
+  }
 
-    // TODO: set window title once we have access to the window handle
-    // SDL_SetWindowTitle(window, ("VigasocoSDL: " + _driver->getFullName()).c_str());
-    SDL_ShowCursor(SDL_DISABLE);
+  // TODO: set window title once we have access to the window handle
+  // SDL_SetWindowTitle(window, ("VigasocoSDL: " +
+  // _driver->getFullName()).c_str());
+  SDL_ShowCursor(SDL_DISABLE);
 }
 
 /////////////////////////////////////////////////////////////////////////////
 // destruction template methods
 /////////////////////////////////////////////////////////////////////////////
 
-void VigasocoSDL::destroyAsyncThread()
-{
-    delete _asyncThread;
-    _asyncThread = 0;
+void VigasocoSDL::destroyAsyncThread() {
+  delete _asyncThread;
+  _asyncThread = 0;
 }
 
-void VigasocoSDL::destroyTimer()
-{
-    delete _timer;
-    _timer = 0;
+void VigasocoSDL::destroyTimer() {
+  delete _timer;
+  _timer = 0;
 }
 
-void VigasocoSDL::removeCustomInputPlugins()
-{
-    // input handler owns and deletes its plugins
+void VigasocoSDL::removeCustomInputPlugins() {
+  // input handler owns and deletes its plugins
 }
 
-void VigasocoSDL::destroyDrawPlugin()
-{
-    delete _drawPlugin;
-    _drawPlugin = 0;
+void VigasocoSDL::destroyDrawPlugin() {
+  delete _drawPlugin;
+  _drawPlugin = 0;
 }
 
-void VigasocoSDL::destroyAudioPlugin()
-{
-    delete _audioPlugin;
-    _audioPlugin = 0;
+void VigasocoSDL::destroyAudioPlugin() {
+  delete _audioPlugin;
+  _audioPlugin = 0;
 }
 
-void VigasocoSDL::removeCustomLoaders(FileLoader *fl)
-{
-    // nothing to remove — no custom loaders added
+void VigasocoSDL::removeCustomLoaders(FileLoader *fl) {
+  // nothing to remove — no custom loaders added
 }
 
-void VigasocoSDL::destroyPalette()
-{
-    delete _palette;
-    _palette = 0;
+void VigasocoSDL::destroyPalette() {
+  delete _palette;
+  _palette = 0;
 }
 
-void VigasocoSDL::platformSpecificEnd()
-{
-    // Close the font system
-    TTF_Quit();
+void VigasocoSDL::platformSpecificEnd() {
+  // Close the font system
+  TTF_Quit();
 
-    // Close SDL
-    SDL_Quit();}
+  // Close SDL
+  SDL_Quit();
+}
 
 /**
  * @brief Process the 'Main loop' exit events
- * 
+ *
  * @return true if is an exit event, false otherwise
  */
-bool VigasocoSDL::processExitEvents()
-{
-    SDL_Event event;
-    if (SDL_PollEvent(&event))
-    {
-        bool isExitEvent = (
-            event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE ||
-            event.type == SDL_QUIT
-        );
+bool VigasocoSDL::processExitEvents() {
+  SDL_Event event;
+  if (SDL_PollEvent(&event)) {
+    bool isExitEvent =
+        (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE ||
+         event.type == SDL_QUIT);
 
-        return isExitEvent;
-    }
+    return isExitEvent;
+  }
 
-    return false;
+  return false;
 }

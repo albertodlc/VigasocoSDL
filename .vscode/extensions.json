@@ -1,0 +1,9 @@
+{
+    "recommendations": [
+        "franneck94.vscode-c-cpp-dev-extension-pack",
+        "llvm-vs-code-extensions.vscode-clangd", 
+        "aaron-bond.better-comments",
+        "KylinIdeTeam.cppdebug",
+        "usernamehw.errorlens"
+    ],
+}

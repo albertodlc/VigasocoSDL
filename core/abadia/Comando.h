@@ -1,30 +1,27 @@
 // Comando.h
 //
-//	Clase que define el interfaz de los comandos que puede ejecutar el generador de bloques
+//	Clase que define el interfaz de los comandos que puede ejecutar el
+//generador de bloques
 //
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef _COMANDO_H_
 #define _COMANDO_H_
 
-
 namespace Abadia {
 
-class GeneradorPantallas;			// definido en GeneradorPantallas.h
+class GeneradorPantallas; // definido en GeneradorPantallas.h
 
-
-class Comando
-{
-// métodos
+class Comando {
+  // métodos
 public:
-	virtual bool ejecutar(GeneradorPantallas *gen) = 0;
+  virtual bool ejecutar(GeneradorPantallas *gen) = 0;
 
-	// inicialización y limpieza
-	Comando(){}
-	virtual ~Comando(){}
+  // inicialización y limpieza
+  Comando() {}
+  virtual ~Comando() {}
 };
 
+} // namespace Abadia
 
-}
-
-#endif	// _COMANDO_H_
+#endif // _COMANDO_H_

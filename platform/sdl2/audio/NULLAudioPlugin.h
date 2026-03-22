@@ -11,53 +11,52 @@
 
 #include <vector>
 
-class NULLAudioPlugin: public IAudioPlugin
-{
-// fields
-	private:
-		bool mute;
-		bool _isInitialized;
+class NULLAudioPlugin : public IAudioPlugin {
+  // fields
+private:
+  bool mute;
+  bool _isInitialized;
 
 protected:
-	static const std::string g_properties[];
-	static const unsigned int g_paramTypes[];
+  static const std::string g_properties[];
+  static const unsigned int g_paramTypes[];
 
-	std::string _errorMsg;				// error message
+  std::string _errorMsg; // error message
 
-// methods
+  // methods
 public:
-	// initialization and cleanup
-	NULLAudioPlugin();
-	virtual ~NULLAudioPlugin();
-	virtual bool init();
-	virtual void end();
+  // initialization and cleanup
+  NULLAudioPlugin();
+  virtual ~NULLAudioPlugin();
+  virtual bool init();
+  virtual void end();
 
-	// getters
-	virtual bool isInitialized(void) const { return _isInitialized; };
+  // getters
+  virtual bool isInitialized(void) const { return _isInitialized; };
 
-	virtual void Play(int sample,bool loop=false);
-	virtual void Pause(int sample);
-	virtual void Stop(int sample);
-	virtual bool LoadWAV(const char *file);
-	virtual bool LoadWAV(const UINT8 *data,const UINT32 len);
+  virtual void Play(int sample, bool loop = false);
+  virtual void Pause(int sample);
+  virtual void Stop(int sample);
+  virtual bool LoadWAV(const char *file);
+  virtual bool LoadWAV(const UINT8 *data, const UINT32 len);
 
-	virtual void acquire();
-	virtual void unAcquire();
+  virtual void acquire();
+  virtual void unAcquire();
 
-	virtual void process(int *inputs);
+  virtual void process(int *inputs);
 
-	// custom properties
-	virtual const std::string *getProperties(int *num) const;
-	virtual const unsigned int *getPropertiesType() const;
-	virtual void setProperty(std::string prop, int data);
-	virtual void setProperty(std::string prop, int index, int data);
-	virtual int getProperty(std::string prop) const;
-	virtual int getProperty(std::string prop, int index) const;
+  // custom properties
+  virtual const std::string *getProperties(int *num) const;
+  virtual const unsigned int *getPropertiesType() const;
+  virtual void setProperty(std::string prop, int data);
+  virtual void setProperty(std::string prop, int index, int data);
+  virtual int getProperty(std::string prop) const;
+  virtual int getProperty(std::string prop, int index) const;
 
 protected:
-	void initRemapTable();
+  void initRemapTable();
+
 private:
 };
 
-
-#endif	// _SDL_AUDIO__PLUGIN_H_
+#endif // _SDL_AUDIO__PLUGIN_H_
