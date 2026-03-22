@@ -6,7 +6,7 @@
     // Smooth UI for Error Lens
     "errorLens.enabledDiagnosticLevels": ["error", "warning"],
     "editor.insertSpaces": true,
-    "editor.tabSize": 4,
+    "editor.tabSize": 2,
     "editor.detectIndentation": false,
     // This tells the C++ tools to respect your .clang-format file
     "clangd.arguments": [
